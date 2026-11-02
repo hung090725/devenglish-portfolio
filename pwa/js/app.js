@@ -6,6 +6,7 @@ import { ArCameraLens } from './ar_camera.js';
 import { SpeechTutor } from './speech_tutor.js';
 import { ItEnglishEngine } from './it_english_engine.js';
 import { StorageManager } from './storage.js';
+import { SM2Engine } from './spaced_repetition.js';
 import { VISUAL_VOCABULARY_LIST, findVisualWord } from '../data/visual_vocab_db.js';
 import { CODE_SNIPPETS, TECH_ARTICLES, INTERVIEW_QUESTIONS } from '../data/it_english_db.js';
 
@@ -602,12 +603,41 @@ class AppController {
           fb.style.color = '#10B981';
           fb.textContent = '🎉 Chính xác! Bạn đã ghi nhớ từ vựng này rất tốt.';
           StorageManager.markWordLearned(vocab.key);
+          // Suggest quality 4 or 5 on SM-2
+          const sm2Status = document.getElementById('sheet-sm2-status');
+          if (sm2Status && sm2Status.textContent === '') {
+            sm2Status.textContent = '💡 Bạn trả lời đúng! Hãy chọn 4 (Nhớ) hoặc 5 (Dễ) để lập lịch SM-2.';
+          }
         } else {
           fb.style.background = 'rgba(244, 63, 94, 0.2)';
           fb.style.color = '#F43F5E';
           fb.textContent = `❌ Chưa đúng. Đáp án đúng là: ${vocab.quizOptions[vocab.quizCorrectIndex]}`;
         }
       });
+    });
+
+    // Initialize SuperMemo-2 (SM-2) Spaced Repetition Panel
+    const card = SM2Engine.getCard(vocab.key);
+    const sm2Status = document.getElementById('sheet-sm2-status');
+    if (sm2Status) {
+      if (card.lastReviewed) {
+        sm2Status.innerHTML = `📊 Đã ôn: <b>${card.repetitions} lần</b> | Hệ số dễ nhớ: <b>${card.easeFactor}</b> | Chu kỳ: <b>${card.intervalDays} ngày</b>`;
+      } else {
+        sm2Status.innerHTML = `🌟 Từ mới chưa vào chu kỳ ôn. Hãy đánh giá độ khó sau khi học!`;
+      }
+    }
+
+    const sm2RateBtns = document.querySelectorAll('.sm2-rate-btn');
+    sm2RateBtns.forEach(btn => {
+      btn.onclick = () => {
+        const score = parseInt(btn.dataset.score);
+        const res = SM2Engine.processReview(vocab.key, score);
+        if (sm2Status) {
+          sm2Status.innerHTML = `✅ <b>Đã ghi nhận SM-2!</b> Lần ôn tiếp theo: <b>${res.nextReviewDate}</b> (${res.intervalDays} ngày nữa, EF: ${res.easeFactor})`;
+        }
+        StorageManager.markWordLearned(vocab.key);
+        this.updateStatsUI();
+      };
     });
 
     this.sheetOverlay.classList.add('open');

@@ -458,6 +458,23 @@
       <div class="sheet-section-title">🎯 Trắc Nghiệm Nhanh AR</div>
       <div id="sheet-quiz-box"></div>
     </div>
+
+    <div class="sheet-section">
+      <div class="sheet-section-title">🧠 Thuật Toán Ôn Tập Ngắt Quãng SM-2 (SuperMemo-2)</div>
+      <div id="sheet-sm2-box" style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:10px; padding:12px;">
+        <div style="font-size:12px; color:var(--text-secondary); margin-bottom:8px;">
+          Đánh giá mức độ ghi nhớ theo đường cong quên lãng Ebbinghaus để thuật toán SM-2 lập lịch ôn tập:
+        </div>
+        <div style="display:grid; grid-template-columns:repeat(5, 1fr); gap:6px; margin-bottom:8px;">
+          <button class="sm2-rate-btn" data-score="1" style="background:rgba(239,68,68,0.2); border:1px solid #EF4444; color:#FCA5A5; padding:8px 2px; border-radius:6px; font-size:11px; font-weight:600; cursor:pointer;">1: Quên</button>
+          <button class="sm2-rate-btn" data-score="2" style="background:rgba(249,115,22,0.2); border:1px solid #F97316; color:#FDBA74; padding:8px 2px; border-radius:6px; font-size:11px; font-weight:600; cursor:pointer;">2: Sai</button>
+          <button class="sm2-rate-btn" data-score="3" style="background:rgba(234,179,8,0.2); border:1px solid #EAB308; color:#FDE047; padding:8px 2px; border-radius:6px; font-size:11px; font-weight:600; cursor:pointer;">3: Khó</button>
+          <button class="sm2-rate-btn" data-score="4" style="background:rgba(34,197,94,0.2); border:1px solid #22C55E; color:#86EFAC; padding:8px 2px; border-radius:6px; font-size:11px; font-weight:600; cursor:pointer;">4: Nhớ</button>
+          <button class="sm2-rate-btn" data-score="5" style="background:rgba(59,130,246,0.2); border:1px solid #3B82F6; color:#93C5FD; padding:8px 2px; border-radius:6px; font-size:11px; font-weight:600; cursor:pointer;">5: Dễ</button>
+        </div>
+        <div id="sheet-sm2-status" style="font-size:12px; color:#38BDF8; font-weight:500;"></div>
+      </div>
+    </div>
   </div>
 
   <!-- ===================================================
