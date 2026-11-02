@@ -9,6 +9,34 @@ import { StorageManager } from './storage.js';
 import { VISUAL_VOCABULARY_LIST, findVisualWord } from '../data/visual_vocab_db.js';
 import { CODE_SNIPPETS, TECH_ARTICLES, INTERVIEW_QUESTIONS } from '../data/it_english_db.js';
 
+/**
+ * High-performance mobile touch helper for iOS Safari & Android
+ * Eliminates 300ms click delay, avoids ghost clicks, and ensures instant response.
+ */
+function attachFastClick(element, handler) {
+  if (!element) return;
+  let touchMoved = false;
+
+  element.addEventListener('touchstart', () => {
+    touchMoved = false;
+  }, { passive: true });
+
+  element.addEventListener('touchmove', () => {
+    touchMoved = true;
+  }, { passive: true });
+
+  element.addEventListener('touchend', (e) => {
+    if (!touchMoved) {
+      if (e.cancelable) e.preventDefault();
+      handler(e);
+    }
+  }, { passive: false });
+
+  element.addEventListener('click', (e) => {
+    handler(e);
+  });
+}
+
 class AppController {
   constructor() {
     this.speech = new SpeechTutor();
@@ -44,8 +72,8 @@ class AppController {
   initNavigation() {
     const navItems = document.querySelectorAll('.tab-nav-item');
     navItems.forEach(item => {
-      item.addEventListener('click', (e) => {
-        e.preventDefault();
+      attachFastClick(item, (e) => {
+        if (e.preventDefault) e.preventDefault();
         const tabId = item.dataset.tab;
         this.switchTab(tabId);
       });
@@ -97,24 +125,26 @@ class AppController {
       }
     });
 
-    // Camera action buttons
-    document.getElementById('btn-flip-cam')?.addEventListener('click', () => {
+    // Camera action buttons with instant zero-latency touch
+    const btnFlip = document.getElementById('btn-flip-cam');
+    attachFastClick(btnFlip, () => {
       this.camera.toggleCamera();
     });
 
-    document.getElementById('btn-torch')?.addEventListener('click', async () => {
+    const btnTorch = document.getElementById('btn-torch');
+    attachFastClick(btnTorch, async () => {
       const state = await this.camera.toggleTorch();
-      const btn = document.getElementById('btn-torch');
-      if (btn) btn.style.color = state ? '#F59E0B' : '#FFFFFF';
+      if (btnTorch) btnTorch.style.color = state ? '#F59E0B' : '#FFFFFF';
     });
 
-    document.getElementById('btn-freeze')?.addEventListener('click', () => {
+    const btnFreeze = document.getElementById('btn-freeze');
+    attachFastClick(btnFreeze, () => {
       const isFrozen = this.camera.toggleFreeze();
-      const btn = document.getElementById('btn-freeze');
-      if (btn) btn.style.color = isFrozen ? '#38BDF8' : '#FFFFFF';
+      if (btnFreeze) btnFreeze.style.color = isFrozen ? '#38BDF8' : '#FFFFFF';
     });
 
-    document.getElementById('btn-capture-scan')?.addEventListener('click', () => {
+    const btnScan = document.getElementById('btn-capture-scan');
+    attachFastClick(btnScan, () => {
       this.camera.performCenterFocusScan();
     });
 
@@ -130,20 +160,24 @@ class AppController {
     vocabList.forEach(vocab => {
       const pill = document.createElement('div');
       pill.className = 'object-pill-card';
+      const level = vocab.cefrLevel || 'B2-C1';
+      const sentence = vocab.exampleSentenceEn || vocab.c1c2ExpressionEn || '';
       pill.innerHTML = `
         <div class="object-pill-info">
-          <h4>${vocab.wordEn}</h4>
+          <h4>${vocab.wordEn} <span class="object-pill-level">${level}</span></h4>
           <p>${vocab.ipa} • ${vocab.meaningVi}</p>
+          <div class="object-pill-sentence">"${sentence}"</div>
         </div>
         <button class="object-pill-audio" title="Nghe phát âm">🔊</button>
       `;
 
-      pill.querySelector('.object-pill-audio').addEventListener('click', (e) => {
-        e.stopPropagation();
+      const audioBtn = pill.querySelector('.object-pill-audio');
+      attachFastClick(audioBtn, (e) => {
+        if (e.stopPropagation) e.stopPropagation();
         this.speech.speak(vocab.wordEn);
       });
 
-      pill.addEventListener('click', () => {
+      attachFastClick(pill, () => {
         this.openDeepKnowledgeSheet(vocab);
       });
 
@@ -513,15 +547,17 @@ class AppController {
    * 5. BOTTOM SHEET MODAL (Encyclopedic Deep Knowledge)
    * =================================================== */
   initBottomSheet() {
-    document.getElementById('btn-close-sheet')?.addEventListener('click', () => {
+    const closeBtn = document.getElementById('btn-close-sheet');
+    attachFastClick(closeBtn, () => {
       this.closeDeepKnowledgeSheet();
     });
 
-    this.sheetOverlay?.addEventListener('click', () => {
+    attachFastClick(this.sheetOverlay, () => {
       this.closeDeepKnowledgeSheet();
     });
 
-    document.getElementById('sheet-speak-btn')?.addEventListener('click', () => {
+    const speakBtn = document.getElementById('sheet-speak-btn');
+    attachFastClick(speakBtn, () => {
       const word = document.getElementById('sheet-word').textContent;
       if (word) this.speech.speak(word);
     });
@@ -626,13 +662,26 @@ class AppController {
     // Check if on iOS Safari and not standalone
     const isIos = /iphone|ipad|ipod/.test(window.navigator.userAgent.toLowerCase());
     const isStandalone = window.navigator.standalone === true || window.matchMedia('(display-mode: standalone)').matches;
+    const isDismissed = localStorage.getItem('pwa_install_dismissed') === 'true';
 
-    if (isIos && !isStandalone) {
+    if (isIos && !isStandalone && !isDismissed) {
       banner.classList.remove('hidden');
+      // Auto-hide after 6 seconds so it never hinders camera interaction
+      setTimeout(() => {
+        banner.classList.add('hidden');
+      }, 6000);
     }
 
-    document.getElementById('btn-close-banner')?.addEventListener('click', () => {
+    const closeBtn = document.getElementById('btn-close-banner');
+    attachFastClick(closeBtn, (e) => {
+      if (e.stopPropagation) e.stopPropagation();
       banner.classList.add('hidden');
+      localStorage.setItem('pwa_install_dismissed', 'true');
+    });
+
+    const triggerBtn = document.getElementById('btn-show-install');
+    attachFastClick(triggerBtn, () => {
+      banner.classList.remove('hidden');
     });
   }
 }
