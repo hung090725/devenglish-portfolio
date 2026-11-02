@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp"
+    android:background="@color/white">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Chẩn đoán lỗi hệ thống"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        android:layout_marginBottom="16dp"
+        android:gravity="center" />
+
+    <Button
+        android:id="@+id/btnCheckTts"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Kiểm tra Text-to-Speech"
+        android:layout_marginBottom="8dp"/>
+
+    <Button
+        android:id="@+id/btnCheckMic"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Kiểm tra Microphone"
+        android:layout_marginBottom="8dp"/>
+
+    <Button
+        android:id="@+id/btnExportLogs"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Xuất nhật ký (Logs)"
+        android:layout_marginBottom="24dp"/>
+
+    <TextView
+        android:id="@+id/tvDiagnosticsResult"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:text="Kết quả chẩn đoán sẽ hiển thị ở đây..."
+        android:background="#EEEEEE"
+        android:padding="12dp"
+        android:scrollbars="vertical"/>
+
+</LinearLayout>

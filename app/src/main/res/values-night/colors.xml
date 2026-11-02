@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Map màu động cho Dark Mode -->
+    <color name="window_background">@color/bg_dark</color>
+    <color name="surface_background">@color/surface_dark</color>
+    <color name="text_primary">@color/text_primary_dark</color>
+    <color name="text_secondary">@color/text_secondary_dark</color>
+    <color name="grey_light">#334155</color>
+</resources>

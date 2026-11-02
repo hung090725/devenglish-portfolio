@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Bảng màu chính (Xanh tím gradient) -->
+    <color name="purple_start">#6366F1</color> <!-- Indigo 500 -->
+    <color name="purple_end">#4F46E5</color>   <!-- Indigo 600 -->
+    <color name="cyan_accent">#06B6D4</color>  <!-- Cyan 500 -->
+
+    <!-- Màu nền sáng và tối -->
+    <color name="bg_light">#F8FAFC</color>     <!-- Slate 50 -->
+    <color name="bg_dark">#0F172A</color>      <!-- Slate 900 -->
+    
+    <!-- Màu card và bề mặt -->
+    <color name="surface_light">#FFFFFF</color>
+    <color name="surface_dark">#1E293B</color>   <!-- Slate 800 -->
+    
+    <!-- Màu chữ -->
+    <color name="text_primary_light">#1E293B</color>
+    <color name="text_primary_dark">#F1F5F9</color>
+    <color name="text_secondary_light">#64748B</color>
+    <color name="text_secondary_dark">#94A3B8</color>
+
+    <!-- Màu trạng thái học tập -->
+    <color name="success">#10B981</color>      <!-- Green 500 -->
+    <color name="warning">#F59E0B</color>      <!-- Amber 500 -->
+    <color name="error">#EF4444</color>        <!-- Red 500 -->
+
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+    <color name="transparent">#00000000</color>
+    <color name="grey_light">#E2E8F0</color>
+    <color name="gray">#808080</color>
+    <color name="teal_700">#018786</color>
+    <color name="purple_500">#6200EE</color>
+
+    <!-- Màu sắc động dùng chung cho Layouts -->
+    <color name="window_background">@color/bg_light</color>
+    <color name="surface_background">@color/surface_light</color>
+    <color name="text_primary">@color/text_primary_light</color>
+    <color name="text_secondary">@color/text_secondary_light</color>
+</resources>

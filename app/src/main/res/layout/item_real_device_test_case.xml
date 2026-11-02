@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="12dp"
+    android:layout_marginBottom="8dp"
+    android:background="#FFFFFF"
+    android:elevation="2dp">
+
+    <TextView
+        android:id="@+id/txt_test_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Test Title"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:textColor="#333333"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginTop="8dp"
+        android:weightSum="4">
+
+        <Button
+            android:id="@+id/btn_status_not_tested"
+            android:layout_width="0dp"
+            android:layout_height="40dp"
+            android:layout_weight="1"
+            android:text="N/A"
+            android:textSize="12sp"
+            android:backgroundTint="#E0E0E0"
+            android:textColor="#333"/>
+        
+        <Button
+            android:id="@+id/btn_status_pass"
+            android:layout_width="0dp"
+            android:layout_height="40dp"
+            android:layout_weight="1"
+            android:layout_marginStart="4dp"
+            android:text="PASS"
+            android:textSize="12sp"
+            android:backgroundTint="#28A745"
+            android:textColor="#FFF"/>
+
+        <Button
+            android:id="@+id/btn_status_fail"
+            android:layout_width="0dp"
+            android:layout_height="40dp"
+            android:layout_weight="1"
+            android:layout_marginStart="4dp"
+            android:text="FAIL"
+            android:textSize="12sp"
+            android:backgroundTint="#DC3545"
+            android:textColor="#FFF"/>
+
+        <Button
+            android:id="@+id/btn_status_blocked"
+            android:layout_width="0dp"
+            android:layout_height="40dp"
+            android:layout_weight="1"
+            android:layout_marginStart="4dp"
+            android:text="BLOCK"
+            android:textSize="12sp"
+            android:backgroundTint="#FFC107"
+            android:textColor="#000"/>
+    </LinearLayout>
+
+    <EditText
+        android:id="@+id/edt_test_note"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Add notes (e.g. bug id or link)"
+        android:textSize="14sp"
+        android:layout_marginTop="8dp"
+        android:inputType="textMultiLine"
+        android:maxLines="3"/>
+</LinearLayout>

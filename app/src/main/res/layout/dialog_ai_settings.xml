@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="20dp">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Google Gemini API Key:"
+        android:textColor="#1E293B"
+        android:textSize="14sp"
+        android:textStyle="bold" />
+
+    <EditText
+        android:id="@+id/etApiKey"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:hint="AIzaSy... (Để trống nếu dùng Offline)"
+        android:inputType="textPassword"
+        android:textSize="14sp" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:text="* Ứng dụng tích hợp sẵn bộ não AI ngoại tuyến chất lượng cao. Bạn có thể nhập Gemini API Key miễn phí từ Google AI Studio để trò chuyện trực tuyến vô hạn."
+        android:textColor="#64748B"
+        android:textSize="12sp" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="Mô hình AI (Model):"
+        android:textColor="#1E293B"
+        android:textSize="14sp"
+        android:textStyle="bold" />
+
+    <EditText
+        android:id="@+id/etModel"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:hint="gemini-1.5-flash"
+        android:text="gemini-1.5-flash"
+        android:inputType="text"
+        android:textSize="14sp" />
+
+</LinearLayout>

@@ -1,0 +1,289 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/window_background"
+    android:padding="20dp">
+
+    <!-- Header -->
+    <LinearLayout
+        android:id="@+id/layout_header"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <ImageView
+            android:id="@+id/btn_back"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:src="@android:drawable/ic_menu_revert"
+            app:tint="@color/text_primary"
+            android:background="?android:attr/selectableItemBackgroundBorderless"
+            android:contentDescription="Quay lại" />
+
+        <TextView
+            android:id="@+id/txt_grammar_title"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginStart="16dp"
+            android:text="Ngữ Pháp Chi Tiết"
+            android:textColor="@color/text_primary"
+            android:textSize="20sp"
+            android:textStyle="bold" />
+
+    </LinearLayout>
+
+    <!-- CONTENT SCROLLVIEW -->
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/scroll_content"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginTop="20dp"
+        android:layout_marginBottom="16dp"
+        app:layout_constraintTop_toBottomOf="@id/layout_header"
+        app:layout_constraintBottom_toTopOf="@id/btn_do_exercise">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <!-- Card Công thức -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Công Thức"
+                android:textColor="@color/text_primary"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:layout_marginBottom="8dp" />
+
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="20dp"
+                app:cardCornerRadius="16dp"
+                app:cardBackgroundColor="@color/surface_background"
+                app:cardElevation="1dp">
+                <TextView
+                    android:id="@+id/txt_formula"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="16dp"
+                    android:text="Công thức ngữ pháp..."
+                    android:textColor="@color/purple_start"
+                    android:textSize="15sp"
+                    android:textStyle="bold"
+                    android:lineSpacingExtra="4dp" />
+            </androidx.cardview.widget.CardView>
+
+            <!-- Cách dùng -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Cách Sử Dụng"
+                android:textColor="@color/text_primary"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:layout_marginBottom="8dp" />
+
+            <TextView
+                android:id="@+id/txt_usage"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Hướng dẫn cách dùng..."
+                android:textColor="@color/text_secondary"
+                android:textSize="14sp"
+                android:lineSpacingExtra="4dp"
+                android:layout_marginBottom="20dp" />
+
+            <!-- Ví dụ Đúng & Sai -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Ví Dụ Thực Tế"
+                android:textColor="@color/text_primary"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:layout_marginBottom="8dp" />
+
+            <!-- Ví dụ đúng card -->
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="12dp"
+                app:cardCornerRadius="16dp"
+                app:cardBackgroundColor="#E6F4EA"
+                app:cardElevation="0dp">
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="✅ CÂU ĐÚNG"
+                        android:textColor="#137333"
+                        android:textSize="12sp"
+                        android:textStyle="bold" />
+                    <TextView
+                        android:id="@+id/txt_correct_examples"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="6dp"
+                        android:text="Ví dụ đúng..."
+                        android:textColor="#137333"
+                        android:textSize="14sp" />
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <!-- Ví dụ sai card -->
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="20dp"
+                app:cardCornerRadius="16dp"
+                app:cardBackgroundColor="#FCE8E6"
+                app:cardElevation="0dp">
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="❌ CÂU SAI THƯỜNG GẶP"
+                        android:textColor="#C5221F"
+                        android:textSize="12sp"
+                        android:textStyle="bold" />
+                    <TextView
+                        android:id="@+id/txt_wrong_examples"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="6dp"
+                        android:text="Ví dụ sai..."
+                        android:textColor="#C5221F"
+                        android:textSize="14sp" />
+                    
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:layout_marginTop="10dp"
+                        android:layout_marginBottom="10dp"
+                        android:background="#40C5221F" />
+
+                    <TextView
+                        android:id="@+id/txt_explanation"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Giải thích lỗi sai..."
+                        android:textColor="#C5221F"
+                        android:textSize="13sp" />
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+
+    <!-- EXERCISE CONTAINER (ẨN MẶC ĐỊNH) -->
+    <LinearLayout
+        android:id="@+id/layout_exercise"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginTop="20dp"
+        android:orientation="vertical"
+        android:visibility="gone"
+        app:layout_constraintTop_toBottomOf="@id/layout_header"
+        app:layout_constraintBottom_toTopOf="@id/btn_do_exercise">
+
+        <TextView
+            android:id="@+id/txt_exercise_question"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Câu hỏi trắc nghiệm ngữ pháp?"
+            android:textColor="@color/text_primary"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="24dp" />
+
+        <!-- 4 Option Buttons -->
+        <Button
+            android:id="@+id/btn_ex_opt_a"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_marginBottom="12dp"
+            android:text="Đáp án A"
+            android:textColor="@color/text_primary"
+            android:background="@drawable/card_rounded_bg"
+            app:backgroundTint="@null"
+            android:textAlignment="viewStart"
+            android:paddingStart="20dp" />
+
+        <Button
+            android:id="@+id/btn_ex_opt_b"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_marginBottom="12dp"
+            android:text="Đáp án B"
+            android:textColor="@color/text_primary"
+            android:background="@drawable/card_rounded_bg"
+            app:backgroundTint="@null"
+            android:textAlignment="viewStart"
+            android:paddingStart="20dp" />
+
+        <Button
+            android:id="@+id/btn_ex_opt_c"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_marginBottom="12dp"
+            android:text="Đáp án C"
+            android:textColor="@color/text_primary"
+            android:background="@drawable/card_rounded_bg"
+            app:backgroundTint="@null"
+            android:textAlignment="viewStart"
+            android:paddingStart="20dp" />
+
+        <Button
+            android:id="@+id/btn_ex_opt_d"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_marginBottom="20dp"
+            android:text="Đáp án D"
+            android:textColor="@color/text_primary"
+            android:background="@drawable/card_rounded_bg"
+            app:backgroundTint="@null"
+            android:textAlignment="viewStart"
+            android:paddingStart="20dp" />
+
+        <!-- Giải thích -->
+        <TextView
+            android:id="@+id/txt_ex_explanation"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Giải thích đúng sai..."
+            android:textColor="@color/success"
+            android:textSize="14sp"
+            android:visibility="gone" />
+
+    </LinearLayout>
+
+    <!-- ACTION BUTTON -->
+    <Button
+        android:id="@+id/btn_do_exercise"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:text="Làm Bài Tập Trắc Nghiệm"
+        android:textColor="@color/white"
+        android:background="@drawable/button_gradient"
+        app:backgroundTint="@null"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toBottomOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

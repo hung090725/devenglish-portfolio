@@ -1,0 +1,11 @@
+package hung.edu.apptienganh.engine;
+
+import org.junit.Test;
+import static org.junit.Assert.*;
+
+public class ErrorNotebookRepositoryTest {
+    @Test
+    public void testBasic() {
+        assertTrue(true);
+    }
+}

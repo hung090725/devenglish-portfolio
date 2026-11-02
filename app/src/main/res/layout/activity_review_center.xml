@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp"
+    android:background="@color/white">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Review Center"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        android:layout_marginBottom="24dp"
+        android:gravity="center" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Hôm nay cần ôn gì?"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:layout_marginBottom="16dp"/>
+
+    <Button
+        android:id="@+id/btnDueVocab"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Từ vựng đến hạn ôn (SRS)"
+        android:layout_marginBottom="8dp"/>
+
+    <Button
+        android:id="@+id/btnWeakGrammar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Lỗi ngữ pháp cần sửa"
+        android:layout_marginBottom="8dp"/>
+
+    <Button
+        android:id="@+id/btnWeakSpeaking"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Luyện lại các câu nói điểm thấp"
+        android:layout_marginBottom="8dp"/>
+
+    <Button
+        android:id="@+id/btnQuizMistakes"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Ôn lại các câu trắc nghiệm sai"
+        android:layout_marginBottom="8dp"/>
+
+    <Button
+        android:id="@+id/btnFavoriteVocab"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Từ vựng yêu thích"
+        android:layout_marginBottom="24dp"/>
+
+    <Button
+        android:id="@+id/btnStartDailyReview"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="BẮT ĐẦU ÔN TẬP TỔNG HỢP (10 PHÚT)"
+        android:backgroundTint="@color/teal_700"
+        android:textColor="@color/white"
+        android:textStyle="bold"/>
+
+</LinearLayout>

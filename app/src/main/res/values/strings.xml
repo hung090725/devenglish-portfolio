@@ -1,0 +1,38 @@
+<resources>
+    <string name="app_name">EnglishPath AI</string>
+    <string name="slogan">Learn English from zero to confident speaking</string>
+    
+    <!-- Onboarding -->
+    <string name="onboarding_title_1">Learn from zero</string>
+    <string name="onboarding_desc_1">Bắt đầu hành trình của bạn với bảng chữ cái, phát âm cơ bản và các từ vựng đơn giản nhất.</string>
+    <string name="onboarding_title_2">Practice speaking</string>
+    <string name="onboarding_desc_2">Luyện nói chuẩn xác thông qua tính năng nhận dạng giọng nói và nhận điểm số đánh giá ngay lập tức.</string>
+    <string name="onboarding_title_3">Build vocabulary &amp; grammar</string>
+    <string name="onboarding_desc_3">Xây dựng vốn từ vựng phong phú, nắm vững cấu trúc ngữ pháp và thực hành hội thoại thực tế.</string>
+    <string name="start_learning">Bắt Đầu Học</string>
+    
+    <!-- Level Test -->
+    <string name="level_test_title">Trình độ của bạn là gì?</string>
+    <string name="level_test_desc">Hãy chọn trình độ hiện tại để EnglishPath AI tối ưu hóa lộ trình dành riêng cho bạn.</string>
+    <string name="level_test_opt1">Tôi mất gốc</string>
+    <string name="level_test_opt2">Tôi biết chút ít</string>
+    <string name="level_test_opt3">Tôi muốn giao tiếp</string>
+    <string name="level_test_opt4">Tôi muốn học nâng cao</string>
+    <string name="confirm">Xác Nhận</string>
+
+    <!-- Accessibility -->
+    <string name="cd_back">Quay lại</string>
+    <string name="cd_speak_uk">Phát âm giọng Anh</string>
+    <string name="cd_speak_us">Phát âm giọng Mỹ</string>
+    <string name="cd_microphone">Ghi âm luyện nói</string>
+    <string name="cd_listen_target">Nghe phát âm mẫu</string>
+    <string name="cd_listen_line">Nghe câu hội thoại</string>
+    <string name="cd_speak_example">Nghe ví dụ bài học</string>
+    <string name="cd_practice_speak">Luyện nói câu ví dụ</string>
+    <string name="cd_continue_learning">Tiếp tục học ngày hiện tại</string>
+    <string name="cd_review_vocabulary">Ôn từ vựng</string>
+
+    <!-- Practice -->
+    <string name="practice_speaking_score_hint">Điểm TB: %1$d%%</string>
+    <string name="practice_vocab_due_count">%1$d từ cần ôn (A0 + A1)</string>
+</resources>

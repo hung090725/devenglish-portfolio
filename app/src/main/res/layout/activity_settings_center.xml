@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white"
+    android:fillViewport="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Cài đặt"
+            android:textSize="24sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="24dp"
+            android:gravity="center" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Học tập"
+            android:textStyle="bold"
+            android:textColor="@color/teal_700"
+            android:layout_marginBottom="8dp"/>
+
+        <Button
+            android:id="@+id/btnDailyGoal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Mục tiêu học tập hàng ngày"
+            android:layout_marginBottom="8dp"/>
+
+        <Button
+            android:id="@+id/btnReminderSettings"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Cài đặt nhắc nhở"
+            android:layout_marginBottom="24dp"/>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Hệ thống &amp; Trí tuệ nhân tạo (AI)"
+            android:textStyle="bold"
+            android:textColor="@color/teal_700"
+            android:layout_marginBottom="8dp"/>
+
+        <Button
+            android:id="@+id/btnAiConfig"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="🤖 Cài đặt Trợ lý AI (Gemini / Offline)"
+            android:backgroundTint="#2563EB"
+            android:textColor="@color/white"
+            android:layout_marginBottom="8dp"/>
+
+        <Button
+            android:id="@+id/btnAudioSettings"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Tùy chỉnh Giọng đọc TTS"
+            android:layout_marginBottom="8dp"/>
+
+        <Button
+            android:id="@+id/btnBackupRestore"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Sao lưu và Khôi phục dữ liệu"
+            android:layout_marginBottom="8dp"/>
+
+        <Button
+            android:id="@+id/btnDiagnostics"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Chẩn đoán lỗi &amp; Nhật ký"
+            android:layout_marginBottom="24dp"/>
+
+    </LinearLayout>
+</ScrollView>

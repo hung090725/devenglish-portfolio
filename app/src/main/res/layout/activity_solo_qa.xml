@@ -1,0 +1,262 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="16dp"
+    android:background="#FAFAFA">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Solo QA Dashboard"
+            android:textSize="24sp"
+            android:textStyle="bold"
+            android:textColor="#333333"
+            android:layout_marginBottom="16dp"/>
+
+        <ProgressBar
+            android:id="@+id/progress_bar_qa"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:visibility="gone"/>
+
+        <!-- App Status -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="1. App Status"
+            android:textStyle="bold"
+            android:textColor="#0056b3"
+            android:layout_marginTop="8dp"/>
+        <TextView
+            android:id="@+id/txt_app_status"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Loading..."
+            android:textSize="14sp"
+            android:layout_marginBottom="8dp"/>
+
+        <!-- Content Status -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="2. Content Status"
+            android:textStyle="bold"
+            android:textColor="#0056b3"
+            android:layout_marginTop="8dp"/>
+        <TextView
+            android:id="@+id/txt_content_status"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Pending"
+            android:textSize="14sp"
+            android:layout_marginBottom="8dp"/>
+
+        <!-- Progress Status -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="3. Progress Status"
+            android:textStyle="bold"
+            android:textColor="#0056b3"
+            android:layout_marginTop="8dp"/>
+        <TextView
+            android:id="@+id/txt_progress_status"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Loading..."
+            android:textSize="14sp"
+            android:layout_marginBottom="8dp"/>
+
+        <!-- Feature Status -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="4. Feature Status"
+            android:textStyle="bold"
+            android:textColor="#0056b3"
+            android:layout_marginTop="8dp"/>
+        <TextView
+            android:id="@+id/txt_feature_status"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Pending"
+            android:textSize="14sp"
+            android:layout_marginBottom="16dp"/>
+
+        <!-- Release Dashboard -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="5. Release Dashboard"
+            android:textStyle="bold"
+            android:textColor="#0056b3"
+            android:layout_marginTop="8dp"/>
+        <TextView
+            android:id="@+id/txt_release_dashboard"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Artifact Paths:\n- APK: app/build/outputs/apk/release/app-release.apk\n- AAB: app/build/outputs/bundle/release/app-release.aab"
+            android:textSize="12sp"
+            android:textColor="#555"
+            android:background="#EEE"
+            android:padding="8dp"
+            android:layout_marginBottom="16dp"/>
+
+        <!-- Action Buttons -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="6. Action Buttons"
+            android:textStyle="bold"
+            android:textColor="#0056b3"
+            android:layout_marginBottom="8dp"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:weightSum="2"
+            android:layout_marginBottom="8dp">
+            <Button
+                android:id="@+id/btn_run_content"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginEnd="4dp"
+                android:text="Test Content"
+                android:backgroundTint="#007BFF"
+                android:textColor="#FFF"/>
+            <Button
+                android:id="@+id/btn_run_progress"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginStart="4dp"
+                android:text="Test Progress"
+                android:backgroundTint="#007BFF"
+                android:textColor="#FFF"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:weightSum="2"
+            android:layout_marginBottom="8dp">
+            <Button
+                android:id="@+id/btn_run_backup"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginEnd="4dp"
+                android:text="Test Backup"
+                android:backgroundTint="#007BFF"
+                android:textColor="#FFF"/>
+            <Button
+                android:id="@+id/btn_run_reminder"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginStart="4dp"
+                android:text="Test Reminder"
+                android:backgroundTint="#007BFF"
+                android:textColor="#FFF"/>
+        </LinearLayout>
+
+        <Button
+            android:id="@+id/btn_open_real_device_test"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Real Device Test Session"
+            android:backgroundTint="#28A745"
+            android:textColor="#FFF"
+            android:layout_marginBottom="8dp"/>
+
+        <Button
+            android:id="@+id/btn_open_backup"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Open Backup/Restore"
+            android:backgroundTint="#6C757D"
+            android:textColor="#FFF"
+            android:layout_marginBottom="8dp"/>
+
+        <Button
+            android:id="@+id/btn_open_noplay"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="No-Play Release Assistant"
+            android:backgroundTint="#FFC107"
+            android:textColor="#000"
+            android:layout_marginBottom="8dp"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:weightSum="2"
+            android:layout_marginBottom="8dp">
+            <Button
+                android:id="@+id/btn_copy_tester_msg"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginEnd="4dp"
+                android:text="Copy Tester Msg"
+                android:textSize="12sp"
+                android:backgroundTint="#17A2B8"
+                android:textColor="#FFF"/>
+            <Button
+                android:id="@+id/btn_copy_release_notes"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginStart="4dp"
+                android:text="Copy Release Notes"
+                android:textSize="12sp"
+                android:backgroundTint="#17A2B8"
+                android:textColor="#FFF"/>
+        </LinearLayout>
+
+        <Button
+            android:id="@+id/btn_copy_report"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Copy Full QA Report"
+            android:backgroundTint="#17A2B8"
+            android:textColor="#FFF"
+            android:layout_marginBottom="16dp"/>
+
+        <!-- Results Display -->
+        <LinearLayout
+            android:id="@+id/layout_results"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:visibility="gone">
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Test Results"
+                android:textStyle="bold"
+                android:textColor="#28A745"
+                android:layout_marginBottom="8dp"/>
+            <TextView
+                android:id="@+id/txt_test_results"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textSize="12sp"
+                android:fontFamily="monospace"
+                android:textColor="#333"
+                android:background="#E9ECEF"
+                android:padding="8dp"/>
+        </LinearLayout>
+    </LinearLayout>
+</ScrollView>

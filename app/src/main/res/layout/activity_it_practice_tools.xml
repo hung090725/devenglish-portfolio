@@ -1,0 +1,372 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="#0F172A">
+
+    <!-- Top Bar -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:padding="16dp"
+        android:background="#1E293B">
+
+        <ImageButton
+            android:id="@+id/btnBack"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:src="@android:drawable/ic_menu_revert"
+            android:contentDescription="Quay lại"
+            app:tint="#FFFFFF" />
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="12dp"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/tvToolTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="IT Workplace Practice Lab"
+                android:textColor="#38BDF8"
+                android:textSize="17sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/tvToolSubtitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Bug Report • Conventional Commits • Standup"
+                android:textColor="#94A3B8"
+                android:textSize="11sp" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <!-- Tab mode selector -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:background="#1E293B"
+        android:padding="8dp">
+
+        <Button
+            android:id="@+id/tabBugReport"
+            android:layout_width="0dp"
+            android:layout_height="36dp"
+            android:layout_weight="1"
+            android:backgroundTint="#EF4444"
+            android:text="🐛 Bug Report"
+            android:textAllCaps="false"
+            android:textColor="#FFFFFF"
+            android:textSize="11sp"
+            android:textStyle="bold" />
+
+        <Button
+            android:id="@+id/tabGitCommit"
+            android:layout_width="0dp"
+            android:layout_height="36dp"
+            android:layout_marginStart="4dp"
+            android:layout_weight="1"
+            android:backgroundTint="#334155"
+            android:text="🐙 Git Commit"
+            android:textAllCaps="false"
+            android:textColor="#94A3B8"
+            android:textSize="11sp" />
+
+        <Button
+            android:id="@+id/tabStandup"
+            android:layout_width="0dp"
+            android:layout_height="36dp"
+            android:layout_marginStart="4dp"
+            android:layout_weight="1"
+            android:backgroundTint="#334155"
+            android:text="⏱️ Standup"
+            android:textAllCaps="false"
+            android:textColor="#94A3B8"
+            android:textSize="11sp" />
+    </LinearLayout>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <!-- Section 1: Bug Report Trainer -->
+            <LinearLayout
+                android:id="@+id/viewBugReport"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="📋 Tình huống lỗi phần mềm (Scenario):\n'Khách hàng báo cáo không thể bấm nút Đăng nhập trên Safari sau khi điền đúng email và mật khẩu.'"
+                    android:textColor="#FCD34D"
+                    android:textSize="13sp"
+                    android:lineSpacingExtra="3dp"
+                    android:layout_marginBottom="12dp" />
+
+                <!-- Bug Title -->
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="1. Bug Title (Tiêu đề lỗi):" android:textColor="#E2E8F0" android:textSize="12sp" android:textStyle="bold" />
+                <EditText
+                    android:id="@+id/etBugTitle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/bg_viewfinder_border"
+                    android:hint="[Auth] Login button unresponsive on Safari 16..."
+                    android:padding="10dp"
+                    android:textColor="#FFFFFF"
+                    android:textColorHint="#64748B"
+                    android:textSize="13sp"
+                    android:layout_marginTop="4dp"
+                    android:layout_marginBottom="8dp" />
+
+                <!-- Steps to reproduce -->
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="2. Steps to Reproduce (Các bước tái hiện):" android:textColor="#E2E8F0" android:textSize="12sp" android:textStyle="bold" />
+                <EditText
+                    android:id="@+id/etBugSteps"
+                    android:layout_width="match_parent"
+                    android:layout_height="65dp"
+                    android:background="@drawable/bg_viewfinder_border"
+                    android:gravity="top|start"
+                    android:hint="1. Navigate to /login&#10;2. Enter valid credentials&#10;3. Click 'Sign In' button"
+                    android:padding="10dp"
+                    android:textColor="#FFFFFF"
+                    android:textColorHint="#64748B"
+                    android:textSize="13sp"
+                    android:layout_marginTop="4dp"
+                    android:layout_marginBottom="8dp" />
+
+                <!-- Expected vs Actual -->
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="3. Expected vs Actual Result:" android:textColor="#E2E8F0" android:textSize="12sp" android:textStyle="bold" />
+                <EditText
+                    android:id="@+id/etBugExpected"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/bg_viewfinder_border"
+                    android:hint="Expected: User redirected to dashboard."
+                    android:padding="10dp"
+                    android:textColor="#FFFFFF"
+                    android:textColorHint="#64748B"
+                    android:textSize="13sp"
+                    android:layout_marginTop="4dp"
+                    android:layout_marginBottom="6dp" />
+
+                <EditText
+                    android:id="@+id/etBugActual"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/bg_viewfinder_border"
+                    android:hint="Actual: Nothing happens, network tab shows no request."
+                    android:padding="10dp"
+                    android:textColor="#FFFFFF"
+                    android:textColorHint="#64748B"
+                    android:textSize="13sp"
+                    android:layout_marginBottom="8dp" />
+
+                <!-- Environment -->
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="4. Environment (Môi trường):" android:textColor="#E2E8F0" android:textSize="12sp" android:textStyle="bold" />
+                <EditText
+                    android:id="@+id/etBugEnv"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/bg_viewfinder_border"
+                    android:hint="macOS Ventura 13.4, Safari 16.5, Web App v1.2.0"
+                    android:padding="10dp"
+                    android:textColor="#FFFFFF"
+                    android:textColorHint="#64748B"
+                    android:textSize="13sp"
+                    android:layout_marginTop="4dp"
+                    android:layout_marginBottom="12dp" />
+
+                <Button
+                    android:id="@+id/btnEvaluateBug"
+                    android:layout_width="match_parent"
+                    android:layout_height="44dp"
+                    android:backgroundTint="#EF4444"
+                    android:text="🔍 Chấm Điểm Báo Cáo Lỗi"
+                    android:textAllCaps="false"
+                    android:textColor="#FFFFFF"
+                    android:textSize="13sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+            <!-- Section 2: Git Commit Simulator -->
+            <LinearLayout
+                android:id="@+id/viewGitCommit"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="gone">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="🐙 Yêu cầu: Viết một Git Commit Message chuẩn Conventional Commits cho tác vụ:\n'Bạn vừa tạo thêm API xác thực JWT và viết test tự động.'"
+                    android:textColor="#FCD34D"
+                    android:textSize="13sp"
+                    android:lineSpacingExtra="3dp"
+                    android:layout_marginBottom="12dp" />
+
+                <EditText
+                    android:id="@+id/etGitCommitMsg"
+                    android:layout_width="match_parent"
+                    android:layout_height="70dp"
+                    android:background="@drawable/bg_viewfinder_border"
+                    android:gravity="top|start"
+                    android:hint="feat(auth): implement JWT authentication filter and unit tests"
+                    android:padding="10dp"
+                    android:textColor="#FFFFFF"
+                    android:textColorHint="#64748B"
+                    android:textSize="13.5sp"
+                    android:fontFamily="monospace"
+                    android:layout_marginBottom="12dp" />
+
+                <Button
+                    android:id="@+id/btnEvaluateGit"
+                    android:layout_width="match_parent"
+                    android:layout_height="44dp"
+                    android:backgroundTint="#059669"
+                    android:text="🔍 Kiểm Tra Chuẩn Conventional Commit"
+                    android:textAllCaps="false"
+                    android:textColor="#FFFFFF"
+                    android:textSize="13sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+            <!-- Section 3: Daily Standup Agile -->
+            <LinearLayout
+                android:id="@+id/viewStandup"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="gone">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="⏱️ Trả lời 3 câu hỏi Scrum Daily Standup chuẩn chuyên nghiệp:"
+                    android:textColor="#FCD34D"
+                    android:textSize="13sp"
+                    android:layout_marginBottom="12dp" />
+
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="1. What did you work on yesterday?" android:textColor="#E2E8F0" android:textSize="12sp" android:textStyle="bold" />
+                <EditText
+                    android:id="@+id/etStandupYesterday"
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp"
+                    android:background="@drawable/bg_viewfinder_border"
+                    android:hint="Yesterday, I finished the unit tests for user service."
+                    android:padding="10dp"
+                    android:textColor="#FFFFFF"
+                    android:textColorHint="#64748B"
+                    android:textSize="13sp"
+                    android:layout_marginTop="4dp"
+                    android:layout_marginBottom="8dp" />
+
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="2. What are you working on today?" android:textColor="#E2E8F0" android:textSize="12sp" android:textStyle="bold" />
+                <EditText
+                    android:id="@+id/etStandupToday"
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp"
+                    android:background="@drawable/bg_viewfinder_border"
+                    android:hint="Today, I am going to integrate the payment webhook."
+                    android:padding="10dp"
+                    android:textColor="#FFFFFF"
+                    android:textColorHint="#64748B"
+                    android:textSize="13sp"
+                    android:layout_marginTop="4dp"
+                    android:layout_marginBottom="8dp" />
+
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="3. Are there any blockers?" android:textColor="#E2E8F0" android:textSize="12sp" android:textStyle="bold" />
+                <EditText
+                    android:id="@+id/etStandupBlockers"
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp"
+                    android:background="@drawable/bg_viewfinder_border"
+                    android:hint="No blockers at the moment, waiting for staging API key."
+                    android:padding="10dp"
+                    android:textColor="#FFFFFF"
+                    android:textColorHint="#64748B"
+                    android:textSize="13sp"
+                    android:layout_marginTop="4dp"
+                    android:layout_marginBottom="12dp" />
+
+                <Button
+                    android:id="@+id/btnEvaluateStandup"
+                    android:layout_width="match_parent"
+                    android:layout_height="44dp"
+                    android:backgroundTint="#0284C7"
+                    android:text="🔍 Chấm Điểm Giao Tiếp Standup"
+                    android:textAllCaps="false"
+                    android:textColor="#FFFFFF"
+                    android:textSize="13sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+            <!-- Tool Evaluation Output Card -->
+            <androidx.cardview.widget.CardView
+                android:id="@+id/cardToolResult"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:visibility="gone"
+                app:cardCornerRadius="16dp"
+                app:cardBackgroundColor="#1E293B"
+                app:cardElevation="4dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <TextView
+                        android:id="@+id/tvToolResultTitle"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="📊 KẾT QUẢ ĐÁNH GIÁ"
+                        android:textColor="#38BDF8"
+                        android:textSize="13sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/tvToolScore"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Điểm đạt: 85/100"
+                        android:textColor="#10B981"
+                        android:textSize="16sp"
+                        android:textStyle="bold"
+                        android:layout_marginTop="6dp" />
+
+                    <TextView
+                        android:id="@+id/tvToolFeedback"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="..."
+                        android:textColor="#CBD5E1"
+                        android:textSize="12.5sp"
+                        android:lineSpacingExtra="3dp"
+                        android:layout_marginTop="8dp" />
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>

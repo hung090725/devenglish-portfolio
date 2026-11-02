@@ -1,0 +1,285 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <!-- Quyền thu âm cho tính năng luyện nói -->
+        <!-- Quyền Camera cho tính năng nhận dạng từ vựng thời gian thực qua ống kính AI -->
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-feature android:name="android.hardware.camera" android:required="false" />
+<uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <!-- Quyền Internet để TTS và SpeechRecognizer có thể kết nối Google Services -->
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+
+    <application
+        android:name=".ApptienganhApp"
+        android:allowBackup="true"
+        android:dataExtractionRules="@xml/data_extraction_rules"
+        android:fullBackupContent="@xml/backup_rules"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.Apptienganh"
+        tools:targetApi="31">
+
+        <activity
+            android:name=".ui.feedback.BetaFeedbackActivity"
+            android:exported="false"
+            android:label="Gửi phản hồi Beta" />
+
+        <activity
+            android:name=".ai.AiConversationActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize"
+            android:label="Trợ lý Giao tiếp AI" />
+
+        <!-- Màn hình Camera Ống Kính AI Nhận Diện Từ Vựng Thời Gian Thực -->
+        <activity
+            android:name=".camera.CameraLensActivity"
+            android:exported="false"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar"
+            android:screenOrientation="portrait"
+            android:label="Ống Kính Từ Vựng AI" />
+
+
+        <!-- SplashActivity là điểm vào chính của ứng dụng -->
+        <activity
+            android:name=".ui.splash.SplashActivity"
+            android:exported="true"
+            android:theme="@style/Theme.Apptienganh.Starting">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <!-- Màn hình Onboarding (giới thiệu lần đầu) -->
+        <activity
+            android:name=".ui.onboarding.OnboardingActivity"
+            android:exported="false" />
+
+        <!-- Màn hình khảo sát trình độ ban đầu -->
+        <activity
+            android:name=".ui.onboarding.LevelTestActivity"
+            android:exported="false" />
+
+        <!-- Màn hình chính với BottomNavigation 5 tab -->
+        <activity
+            android:name=".MainActivity"
+            android:exported="false" />
+
+        <!-- Màn hình chi tiết bài học (Phát âm, Ngữ pháp, v.v.) -->
+        <activity
+            android:name=".ui.lessondetail.LessonDetailActivity"
+            android:exported="false" />
+
+        <!-- Màn hình chi tiết từ vựng với TTS và luyện nói -->
+        <activity
+            android:name=".ui.vocabulary.VocabularyDetailActivity"
+            android:exported="false" />
+
+        <!-- Màn hình chi tiết ngữ pháp với bài tập trắc nghiệm -->
+        <activity
+            android:name=".ui.grammar.GrammarDetailActivity"
+            android:exported="false" />
+
+        <!-- Màn hình luyện nói (Nhận dạng + Chấm điểm phát âm) -->
+        <activity
+            android:name=".ui.speaking.SpeakingPracticeActivity"
+            android:exported="false" />
+
+        <!-- Màn hình hội thoại phân vai A-B tình huống giao tiếp -->
+        <activity
+            android:name=".ui.conversation.ConversationPracticeActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".ui.lessondetail.LessonDayActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".ui.vocabulary.VocabularyReviewActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".ui.quiz.QuizResultActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".ui.qa.SoloQaActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".ui.qa.NoPlayReleaseActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".ui.qa.SoloManualChecklistActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".ui.placement.PlacementTestActivity"
+            android:exported="false"
+            android:label="Kiểm tra trình độ" />
+
+        <activity
+            android:name=".ui.review.ReviewCenterActivity"
+            android:exported="false"
+            android:label="Review Center" />
+
+        <activity
+            android:name=".ui.dictionary.DictionaryProActivity"
+            android:exported="false"
+            android:label="Dictionary Pro" />
+
+        <activity
+            android:name=".ui.grammar.GrammarLabActivity"
+            android:exported="false"
+            android:label="Grammar Lab" />
+
+        <activity
+            android:name=".ui.conversation.RoleplayProActivity"
+            android:exported="false"
+            android:label="Role-play Pro" />
+
+        <activity
+            android:name=".ui.listening.ListeningTrainerActivity"
+            android:exported="false"
+            android:label="Listening Trainer" />
+
+        <activity
+            android:name=".ui.speaking.SpeakingTrainerProActivity"
+            android:exported="false"
+            android:label="Speaking Trainer Pro" />
+
+        <activity
+            android:name=".ui.achievement.AchievementActivity"
+            android:exported="false"
+            android:label="Thành tích" />
+
+        <activity
+            android:name=".ui.dailyplan.SmartDailyPlanActivity"
+            android:exported="false"
+            android:label="Lộ trình học" />
+
+        <activity
+            android:name=".ui.settings.SettingsCenterActivity"
+            android:exported="false"
+            android:label="Cài đặt" />
+
+        <activity
+            android:name=".ui.diagnostics.DiagnosticsActivity"
+            android:exported="false"
+            android:label="Chẩn đoán lỗi" />
+
+        <activity
+            android:name=".ui.settings.ReminderSettingsActivity"
+            android:exported="false" />
+
+        <!-- Màn hình Backup/Restore tiến trình học tập -->
+        <activity
+            android:name=".ui.backup.BackupRestoreActivity"
+            android:exported="false"
+            android:label="Backup &amp; Restore" />
+
+
+        <activity
+            android:name=".ui.qa.RealDeviceTestSessionActivity"
+            android:exported="false"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar"/>
+
+        <activity
+            android:name=".ui.exam.ExamSimulatorActivity"
+            android:exported="false"
+            android:label="Exam Simulator" />
+
+        <activity
+            android:name=".ui.certificate.CompletionReportActivity"
+            android:exported="false"
+            android:label="Completion Report" />
+
+        <activity
+            android:name=".ui.goal.GoalSetupActivity"
+            android:exported="false"
+            android:label="Goal Setup" />
+
+        <activity
+            android:name=".ui.studio.ContentStudioActivity"
+            android:exported="false"
+            android:label="Content Studio" />
+
+        <activity
+            android:name=".ui.pronunciation.PronunciationClinicActivity"
+            android:exported="false"
+            android:label="Pronunciation Clinic" />
+
+        <activity
+            android:name=".ui.flashcard.FlashcardActivity"
+            android:exported="false"
+            android:label="Flashcards" />
+
+        <activity
+            android:name=".ui.game.WordGameActivity"
+            android:exported="false"
+            android:label="Word Game" />
+
+        <activity
+            android:name=".ui.reading.ReadingTrainerActivity"
+            android:exported="false"
+            android:label="Reading Trainer" />
+
+        <activity
+            android:name=".ui.calendar.StudyCalendarActivity"
+            android:exported="false"
+            android:label="Study Calendar" />
+
+        <activity
+            android:name=".ui.qa.AppCompletionAuditActivity"
+            android:exported="false"
+            android:label="App Completion Audit" />
+
+        <!-- Màn hình còn thiếu -->
+        <activity
+            android:name=".ui.writing.WritingTrainerActivity"
+            android:exported="false"
+            android:label="Writing Trainer" />
+
+        <activity
+            android:name=".ui.sentence.SentenceBuilderActivity"
+            android:exported="false"
+            android:label="Sentence Builder" />
+
+        <activity
+            android:name=".ui.errornotebook.ErrorNotebookActivity"
+            android:exported="false"
+            android:label="Error Notebook" />
+            <!-- DEVENGLISH AI - PHÂN HỆ TIẾNG ANH CHO DÂN CNTT & LẬP TRÌNH VIÊN -->
+        <activity
+            android:name=".ui.itenglish.ItEnglishHubActivity"
+            android:exported="false"
+            android:label="DEVENGLISH AI Hub" />
+
+        <activity
+            android:name=".ui.itenglish.CodeToEnglishActivity"
+            android:exported="false"
+            android:label="Code to English AI" />
+
+        <activity
+            android:name=".ui.itenglish.TechDocReaderActivity"
+            android:exported="false"
+            android:label="Technical Docs Reader" />
+
+        <activity
+            android:name=".ui.itenglish.ItInterviewSimulatorActivity"
+            android:exported="false"
+            android:label="IT Interview Simulator" />
+
+        <activity
+            android:name=".ui.itenglish.ItPracticeToolsActivity"
+            android:exported="false"
+            android:label="IT Workplace Tools" />
+    </application>
+
+</manifest>

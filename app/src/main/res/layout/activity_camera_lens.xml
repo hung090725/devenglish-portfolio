@@ -1,0 +1,630 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#000000">
+
+    <!-- CAMERAX PREVIEW VIEW -->
+    <androidx.camera.view.PreviewView
+        android:id="@+id/previewView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <!-- REAL-TIME AR GRAPHIC OVERLAY (HUD, AR TAGS, CYBERPUNK RETICLE) -->
+    <hung.edu.apptienganh.camera.GraphicOverlay
+        android:id="@+id/graphicOverlay"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <!-- MAIN CAMERA CONTROLS & HUD -->
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <!-- TOP BAR (STATUS & CORE CONTROLS) -->
+        <LinearLayout
+            android:id="@+id/layoutTopBar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="#CC0B1329"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingStart="8dp"
+            android:paddingTop="8dp"
+            android:paddingEnd="8dp"
+            android:paddingBottom="8dp">
+
+            <ImageButton
+                android:id="@+id/btnBack"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:src="@android:drawable/ic_menu_revert"
+                android:contentDescription="Quay lại"
+                app:tint="#FFFFFF" />
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="6dp"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Ống Kính AR Tiếng Anh"
+                    android:textColor="#FFFFFF"
+                    android:textSize="15sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/tvLiveStatus"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="⚡ 100% OFFLINE • AR ACTIVE"
+                    android:textColor="#34D399"
+                    android:textSize="10sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+            <!-- Quest Button -->
+            <ImageButton
+                android:id="@+id/btnQuest"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:src="@android:drawable/ic_menu_myplaces"
+                android:contentDescription="Nhiệm vụ Săn từ vựng"
+                app:tint="#F59E0B" />
+
+            <!-- 30-Day Bilingual Home Journey Button (Ý tưởng 34) -->
+            <ImageButton
+                android:id="@+id/btn30DayJourney"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:layout_marginStart="2dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:src="@android:drawable/ic_menu_today"
+                android:contentDescription="Thử thách 30 ngày song ngữ"
+                app:tint="#10B981" />
+
+            <!-- Blind Memory Mode Toggle -->
+            <ImageButton
+                android:id="@+id/btnBlindMode"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:layout_marginStart="2dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:src="@android:drawable/ic_menu_help"
+                android:contentDescription="Chế độ Đố che từ"
+                app:tint="#94A3B8" />
+
+            <!-- Album Pokédex Button -->
+            <ImageButton
+                android:id="@+id/btnPokedex"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:layout_marginStart="2dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:src="@android:drawable/ic_menu_gallery"
+                android:contentDescription="Bộ sưu tập từ vựng"
+                app:tint="#38BDF8" />
+
+            <!-- Freeze button -->
+            <ImageButton
+                android:id="@+id/btnFreeze"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:layout_marginStart="2dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:src="@android:drawable/ic_media_pause"
+                android:contentDescription="Tạm dừng hình để đọc"
+                app:tint="#FCD34D" />
+
+            <!-- Auto Speak Toggle -->
+            <ImageButton
+                android:id="@+id/btnAutoSpeak"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:layout_marginStart="2dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:src="@android:drawable/ic_lock_silent_mode_off"
+                android:contentDescription="Tự động đọc"
+                app:tint="#38BDF8" />
+
+            <ImageButton
+                android:id="@+id/btnFlash"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:layout_marginStart="2dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:src="@android:drawable/ic_menu_compass"
+                android:contentDescription="Đèn Flash"
+                app:tint="#FFFFFF" />
+
+            <ImageButton
+                android:id="@+id/btnSwitchCamera"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:layout_marginStart="2dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:src="@android:drawable/ic_menu_rotate"
+                android:contentDescription="Đổi Camera"
+                app:tint="#FFFFFF" />
+        </LinearLayout>
+
+        <!-- SUB-HEADER: MODE & CEFR LEVEL PILL SELECTORS -->
+        <LinearLayout
+            android:id="@+id/layoutModeSelector"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/layoutTopBar"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="6dp"
+            android:background="#D90F172A"
+            android:padding="2dp"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/btnModeObject"
+                android:layout_width="wrap_content"
+                android:layout_height="32dp"
+                android:backgroundTint="#2563EB"
+                android:text="🏷️ Đồ Vật"
+                android:textAllCaps="false"
+                android:textColor="#FFFFFF"
+                android:textSize="11sp"
+                android:textStyle="bold" />
+
+            <Button
+                android:id="@+id/btnModeText"
+                android:layout_width="wrap_content"
+                android:layout_height="32dp"
+                android:layout_marginStart="2dp"
+                android:backgroundTint="#334155"
+                android:text="📝 Sách &amp; Chữ"
+                android:textAllCaps="false"
+                android:textColor="#94A3B8"
+                android:textSize="11sp" />
+
+            <!-- CEFR C1 Academic Toggle -->
+            <Button
+                android:id="@+id/btnCefrC1"
+                android:layout_width="wrap_content"
+                android:layout_height="32dp"
+                android:layout_marginStart="4dp"
+                android:backgroundTint="#334155"
+                android:text="🎓 C1 IELTS"
+                android:textAllCaps="false"
+                android:textColor="#CBD5E1"
+                android:textSize="11sp" />
+        </LinearLayout>
+
+        <!-- CENTER RETICLE / VIEWFINDER BOX -->
+        <FrameLayout
+            android:id="@+id/viewfinderContainer"
+            android:layout_width="240dp"
+            android:layout_height="240dp"
+            android:layout_centerInParent="true"
+            android:background="@drawable/bg_viewfinder_border">
+
+            <!-- Crosshair center dot -->
+            <View
+                android:layout_width="8dp"
+                android:layout_height="8dp"
+                android:layout_gravity="center"
+                android:background="@drawable/bg_circle_avatar" />
+
+            <!-- Floating Live AR Badge -->
+            <TextView
+                android:id="@+id/tvLiveArBadge"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="top|center_horizontal"
+                android:layout_marginTop="8dp"
+                android:background="#D91E293B"
+                android:paddingStart="10dp"
+                android:paddingTop="3dp"
+                android:paddingEnd="10dp"
+                android:paddingBottom="3dp"
+                android:text="🎯 Đưa ống kính về phía vật thể hoặc trang sách"
+                android:textColor="#38BDF8"
+                android:textSize="11sp"
+                android:textStyle="bold" />
+        </FrameLayout>
+
+        <!-- QUICK ZOOM CONTROLS (FOR ONE-HANDED MOBILE USE) -->
+        <LinearLayout
+            android:id="@+id/layoutZoomControls"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/viewfinderContainer"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="8dp"
+            android:background="#990F172A"
+            android:padding="2dp"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/btnZoom1x"
+                android:layout_width="44dp"
+                android:layout_height="30dp"
+                android:backgroundTint="#2563EB"
+                android:text="1x"
+                android:textAllCaps="false"
+                android:textColor="#FFFFFF"
+                android:textSize="10.5sp"
+                android:textStyle="bold" />
+
+            <Button
+                android:id="@+id/btnZoom2x"
+                android:layout_width="44dp"
+                android:layout_height="30dp"
+                android:layout_marginStart="3dp"
+                android:backgroundTint="#334155"
+                android:text="2x"
+                android:textAllCaps="false"
+                android:textColor="#CBD5E1"
+                android:textSize="10.5sp" />
+
+            <Button
+                android:id="@+id/btnZoom3x"
+                android:layout_width="44dp"
+                android:layout_height="30dp"
+                android:layout_marginStart="3dp"
+                android:backgroundTint="#334155"
+                android:text="3x"
+                android:textAllCaps="false"
+                android:textColor="#CBD5E1"
+                android:textSize="10.5sp" />
+        </LinearLayout>
+
+        <!-- INTERACTIVE LEARNING ACTION BUTTONS (AI PRONUNCIATION, POP-QUIZ, SNAP) -->
+        <LinearLayout
+            android:id="@+id/layoutActionButtons"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/layoutZoomControls"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="8dp"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/btnPronounceTest"
+                android:layout_width="wrap_content"
+                android:layout_height="38dp"
+                android:backgroundTint="#8B5CF6"
+                android:text="🎙️ Luyện Đọc"
+                android:textAllCaps="false"
+                android:textColor="#FFFFFF"
+                android:textSize="11.5sp"
+                android:textStyle="bold" />
+
+            <Button
+                android:id="@+id/btnPopQuiz"
+                android:layout_width="wrap_content"
+                android:layout_height="38dp"
+                android:layout_marginStart="6dp"
+                android:backgroundTint="#F59E0B"
+                android:text="🧠 Đố Nhanh"
+                android:textAllCaps="false"
+                android:textColor="#FFFFFF"
+                android:textSize="11.5sp"
+                android:textStyle="bold" />
+
+            <Button
+                android:id="@+id/btnDeepAiScan"
+                android:layout_width="wrap_content"
+                android:layout_height="38dp"
+                android:layout_marginStart="6dp"
+                android:backgroundTint="#2563EB"
+                android:text="✨ Chi tiết AI"
+                android:textAllCaps="false"
+                android:textColor="#FFFFFF"
+                android:textSize="11.5sp"
+                android:textStyle="bold" />
+
+            <Button
+                android:id="@+id/btnShutterCapture"
+                android:layout_width="wrap_content"
+                android:layout_height="38dp"
+                android:layout_marginStart="6dp"
+                android:backgroundTint="#059669"
+                android:text="📸 Chụp Thẻ"
+                android:textAllCaps="false"
+                android:textColor="#FFFFFF"
+                android:textSize="11.5sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <ProgressBar
+            android:id="@+id/progressAiVision"
+            android:layout_width="28dp"
+            android:layout_height="28dp"
+            android:layout_below="@id/layoutActionButtons"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="6dp"
+            android:visibility="gone" />
+
+    </RelativeLayout>
+
+    <!-- BOTTOM SHEET / AR VOCABULARY DETAIL CARD -->
+    <androidx.cardview.widget.CardView
+        android:id="@+id/bottomVocabCard"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        app:cardCornerRadius="24dp"
+        app:cardElevation="16dp"
+        app:cardBackgroundColor="#FAF8FAFC">
+
+        <androidx.core.widget.NestedScrollView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <!-- Drag pill handle -->
+                <View
+                    android:layout_width="40dp"
+                    android:layout_height="4dp"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_marginBottom="8dp"
+                    android:background="#CBD5E1" />
+
+                <!-- ROW 1: ENGLISH WORD + IPA + AUDIO -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <LinearLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal">
+
+                            <TextView
+                                android:id="@+id/tvWordEn"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Laptop"
+                                android:textColor="#0F172A"
+                                android:textSize="20sp"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:id="@+id/tvCefrBadge"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="8dp"
+                                android:background="#DBEAFE"
+                                android:paddingStart="7dp"
+                                android:paddingTop="2dp"
+                                android:paddingEnd="7dp"
+                                android:paddingBottom="2dp"
+                                android:text="A1"
+                                android:textColor="#1D4ED8"
+                                android:textSize="10.5sp"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:id="@+id/tvWordType"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="6dp"
+                                android:text="(noun)"
+                                android:textColor="#64748B"
+                                android:textSize="11.5sp"
+                                android:textStyle="italic" />
+                        </LinearLayout>
+
+                        <TextView
+                            android:id="@+id/tvIpa"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="2dp"
+                            android:text="/ˈlæp.tɒp/"
+                            android:textColor="#2563EB"
+                            android:textSize="13.5sp"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+
+                    <!-- Speak English Word -->
+                    <ImageButton
+                        android:id="@+id/btnSpeakWord"
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        android:background="@drawable/bg_circle_avatar"
+                        android:src="@android:drawable/ic_lock_silent_mode_off"
+                        android:contentDescription="Phát âm tiếng Anh"
+                        app:tint="#2563EB" />
+                </LinearLayout>
+
+                <!-- VIETNAMESE MEANING -->
+                <TextView
+                    android:id="@+id/tvMeaningVi"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:text="Máy tính xách tay"
+                    android:textColor="#059669"
+                    android:textSize="15sp"
+                    android:textStyle="bold" />
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginBottom="8dp"
+                    android:background="#E2E8F0" />
+
+                <!-- COLLOCATION / PHRASE -->
+                <TextView
+                    android:id="@+id/tvCollocation"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="🔗 Cụm từ: work on a laptop • làm việc trên máy tính"
+                    android:textColor="#1E293B"
+                    android:textSize="12.5sp" />
+
+                <!-- IDIOM SPOTLIGHT (Ý TƯỞNG 7) -->
+                <TextView
+                    android:id="@+id/tvIdiom"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp"
+                    android:background="#FEF3C7"
+                    android:padding="6dp"
+                    android:text="💡 Thành ngữ: On the blink • Đang chập chờn / bị lỗi"
+                    android:textColor="#92400E"
+                    android:textSize="12sp" />
+
+                <!-- WORD FAMILY & SYNONYMS (Ý TƯỞNG 6) -->
+                <TextView
+                    android:id="@+id/tvWordFamily"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp"
+                    android:text="🌳 Họ hàng từ: compute (v) • computation (n) • computational (adj)"
+                    android:textColor="#475569"
+                    android:textSize="12sp" />
+
+                <!-- INSTANT DIALOGUE (Ý TƯỞNG 8) -->
+                <TextView
+                    android:id="@+id/tvDialogue"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp"
+                    android:background="#F0FDF4"
+                    android:padding="6dp"
+                    android:text="💬 Hội thoại mẫu:\nA: Do you have your laptop with you?\nB: Yes, it's inside my backpack."
+                    android:textColor="#166534"
+                    android:textSize="12sp" />
+
+                <!-- EXAMPLE SENTENCE -->
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="💬 Câu ví dụ thực tế:"
+                    android:textColor="#475569"
+                    android:textSize="11.5sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/tvExampleEn"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:text="I use my laptop every day for studying English and working."
+                    android:textColor="#0F172A"
+                    android:textSize="13sp" />
+
+                <TextView
+                    android:id="@+id/tvExampleVi"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:text="Tôi dùng máy tính xách tay mỗi ngày để học tiếng Anh và làm việc."
+                    android:textColor="#64748B"
+                    android:textSize="12sp" />
+
+                <!-- AI DETAILED NOTES (OPTIONAL) -->
+                <TextView
+                    android:id="@+id/tvAiNotes"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp"
+                    android:background="#EFF6FF"
+                    android:padding="8dp"
+                    android:textColor="#1E40AF"
+                    android:textSize="11.5sp"
+                    android:visibility="gone" />
+
+                <!-- DEEP KNOWLEDGE HUB BUTTON (BÁCH KHOA HỌC SÂU 20 Ý TƯỞNG) -->
+                <Button
+                    android:id="@+id/btnDeepKnowledge"
+                    android:layout_width="match_parent"
+                    android:layout_height="44dp"
+                    android:layout_marginTop="10dp"
+                    android:backgroundTint="#0F172A"
+                    android:text="🏛️ MỞ BÁCH KHOA HỌC SÂU (20 CHỦ ĐỀ CHUYÊN BIỆT)"
+                    android:textAllCaps="false"
+                    android:textColor="#38BDF8"
+                    android:textSize="12.5sp"
+                    android:textStyle="bold" />
+
+                <!-- ACTION BUTTONS ROW (AUDIO, SAVE & EXPORT) -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:orientation="horizontal">
+
+                    <Button
+                        android:id="@+id/btnSpeakSentence"
+                        android:layout_width="0dp"
+                        android:layout_height="40dp"
+                        android:layout_marginEnd="4dp"
+                        android:layout_weight="1"
+                        android:backgroundTint="#F1F5F9"
+                        android:text="🔊 Câu"
+                        android:textAllCaps="false"
+                        android:textColor="#0F172A"
+                        android:textSize="11.5sp" />
+
+                    <Button
+                        android:id="@+id/btnSpeakMeaningVi"
+                        android:layout_width="0dp"
+                        android:layout_height="40dp"
+                        android:layout_marginEnd="4dp"
+                        android:layout_weight="1"
+                        android:backgroundTint="#F1F5F9"
+                        android:text="🇻🇳 Nghĩa"
+                        android:textAllCaps="false"
+                        android:textColor="#0F172A"
+                        android:textSize="11.5sp" />
+
+                    <Button
+                        android:id="@+id/btnSaveWord"
+                        android:layout_width="0dp"
+                        android:layout_height="40dp"
+                        android:layout_marginEnd="4dp"
+                        android:layout_weight="1"
+                        android:backgroundTint="#059669"
+                        android:text="⭐ Lưu"
+                        android:textAllCaps="false"
+                        android:textColor="#FFFFFF"
+                        android:textSize="11.5sp" />
+
+                    <Button
+                        android:id="@+id/btnExportAnki"
+                        android:layout_width="0dp"
+                        android:layout_height="40dp"
+                        android:layout_weight="1"
+                        android:backgroundTint="#2563EB"
+                        android:text="📤 Anki"
+                        android:textAllCaps="false"
+                        android:textColor="#FFFFFF"
+                        android:textSize="11.5sp" />
+                </LinearLayout>
+
+            </LinearLayout>
+        </androidx.core.widget.NestedScrollView>
+    </androidx.cardview.widget.CardView>
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

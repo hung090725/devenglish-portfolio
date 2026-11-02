@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp"
+    android:background="#FAFAFA">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="No-Play Release Assistant"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        android:textColor="#333333"
+        android:layout_marginBottom="16dp"/>
+
+    <TextView
+        android:id="@+id/txt_version_info"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:layout_marginBottom="16dp"/>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Artifact Paths:"
+        android:textStyle="bold"
+        android:layout_marginBottom="4dp"/>
+    <TextView
+        android:id="@+id/txt_artifact_paths"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="14sp"
+        android:fontFamily="monospace"
+        android:background="#E9ECEF"
+        android:padding="8dp"
+        android:layout_marginBottom="16dp"/>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Pre-Release Checklist:"
+        android:textStyle="bold"
+        android:layout_marginBottom="4dp"/>
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="[ ] Build xanh\n[ ] Test unit xanh\n[ ] Lint 0 error\n[ ] Backup/restore test pass\n[ ] Content self-test pass\n[ ] Diagnostics export pass"
+        android:textSize="14sp"
+        android:layout_marginBottom="16dp"/>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Tester Message Template:"
+        android:textStyle="bold"
+        android:layout_marginBottom="4dp"/>
+    <TextView
+        android:id="@+id/txt_release_message"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="14sp"
+        android:background="#E9ECEF"
+        android:padding="8dp"
+        android:layout_marginBottom="8dp"/>
+
+    <Button
+        android:id="@+id/btn_copy_message"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Copy Message"
+        android:backgroundTint="#007BFF"
+        android:textColor="#FFF"/>
+
+</LinearLayout>
