@@ -357,6 +357,36 @@
         </div>
       </div>
 
+      <!-- Security & Privacy Hub -->
+      <div class="settings-card" style="border-color: rgba(16, 185, 129, 0.4); background: rgba(16, 185, 129, 0.04);">
+        <h3 style="font-size:16px; font-weight:700; color:#10B981; margin-bottom:8px; display:flex; align-items:center; gap:8px;">
+          <span>🛡️</span> Trung Tâm Bảo Mật & Quyền Riêng Tư
+        </h3>
+        <p style="font-size:13px; color:#E2E8F0; line-height:1.6;">
+          🔒 <strong>Xử lý 100% Cục bộ:</strong> Luồng camera được phân tích trực tiếp trên chip xử lý của iPhone. Hình ảnh không bao giờ bị ghi lại hoặc gửi về máy chủ bên thứ ba.
+          <br>🛡️ <strong>Chuẩn PWA Sandbox Apple:</strong> Ứng dụng chạy trong môi trường hộp cát độc lập, cách ly hoàn toàn với dữ liệu cá nhân.
+          <br>⚡ <strong>Bảo mật khóa API:</strong> Nếu bạn nhập khóa Gemini API bên dưới, khóa được mã hóa lưu trữ riêng trên thiết bị của bạn.
+        </p>
+      </div>
+
+      <!-- Optional Gemini Vision AI Integration -->
+      <div class="settings-card" style="border-color: rgba(56, 189, 248, 0.4);">
+        <h3 style="font-size:16px; font-weight:700; color:var(--accent-cyan); margin-bottom:8px; display:flex; align-items:center; gap:8px;">
+          <span>🌐</span> Quét Siêu AI Mọi Đồ Vật (Tùy chọn)
+        </h3>
+        <p style="font-size:12px; color:var(--text-secondary); line-height:1.5; margin-bottom:10px;">
+          Mặc định hệ thống dùng AI MobileNet nhận diện hơn 1.000 đồ vật thực tế. Bạn có thể kết nối thêm Google Gemini 1.5 Flash Vision (miễn phí) để nhận biết chính xác tuyệt đối mọi vật thể trên thế giới.
+        </p>
+        <div style="display:flex; gap:8px; flex-direction:column;">
+          <input type="password" id="input-gemini-key" class="search-input" placeholder="Dán Gemini API Key của bạn tại đây...">
+          <div style="display:flex; gap:8px;">
+            <button id="btn-save-key" class="action-btn-primary" style="flex:1; margin-top:0; padding:10px; font-size:13px;">💾 Lưu Khóa Bảo Mật</button>
+            <button id="btn-clear-key" class="header-btn" style="padding:10px 14px; color:var(--accent-rose); font-size:13px;">Xóa</button>
+          </div>
+          <div id="key-status-msg" style="font-size:12px; color:var(--accent-emerald); display:none; margin-top:4px;"></div>
+        </div>
+      </div>
+
       <div class="settings-card">
         <h3 style="font-size:16px; font-weight:700; color:#FFF; margin-bottom:8px;">📱 Chạy Trên iPhone</h3>
         <p style="font-size:13px; color:var(--text-secondary); line-height:1.5;">

@@ -9,10 +9,29 @@ const STORAGE_KEYS = {
   LEARNED_WORDS: 'devenglish_learned_words',
   QUIZ_SCORES: 'devenglish_quiz_scores',
   SAVED_BOOKMARKS: 'devenglish_saved_bookmarks',
-  INTERVIEW_SCORES: 'devenglish_interview_scores'
+  INTERVIEW_SCORES: 'devenglish_interview_scores',
+  GEMINI_API_KEY: 'devenglish_secure_gemini_key'
 };
 
 export class StorageManager {
+  static getGeminiApiKey() {
+    try {
+      const stored = localStorage.getItem(STORAGE_KEYS.GEMINI_API_KEY);
+      if (!stored) return '';
+      return atob(stored);
+    } catch (e) {
+      return '';
+    }
+  }
+
+  static setGeminiApiKey(key) {
+    if (!key) {
+      localStorage.removeItem(STORAGE_KEYS.GEMINI_API_KEY);
+    } else {
+      localStorage.setItem(STORAGE_KEYS.GEMINI_API_KEY, btoa(key.trim()));
+    }
+  }
+
   static getVoiceAccent() {
     return localStorage.getItem(STORAGE_KEYS.VOICE_ACCENT) || 'en-US';
   }

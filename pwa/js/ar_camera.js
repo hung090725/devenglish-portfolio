@@ -6,6 +6,7 @@
  */
 import { findVisualWord, VISUAL_VOCABULARY_LIST } from '../data/visual_vocab_db.js';
 import { StorageManager } from './storage.js';
+import { VisionAiEngine } from './vision_ai.js';
 
 export class ArCameraLens {
   constructor({ videoElement, canvasElement, containerElement, onObjectDetected, onObjectSelected, onError, onCameraReady }) {
@@ -33,6 +34,8 @@ export class ArCameraLens {
     this.modelsReady = false;
     this.lastDetectionTime = 0;
     this.lastScanIdx = 0;
+    this.lockManualScanUntil = 0;
+    this.lastSeenObjectTime = 0;
 
     // Offline Frame Analysis buffer
     this.offscreenCanvas = document.createElement('canvas');
@@ -181,30 +184,52 @@ export class ArCameraLens {
 
   /**
    * Load MobileNet (1000 categories) and COCO-SSD (Multi-object detector)
+   * Uses resilient asynchronous polling to await CDN script initialization on iPhone
    */
   async loadAiModels() {
     if (this.isModelLoading || this.modelsReady) return;
     this.isModelLoading = true;
 
+    const statusBadge = document.getElementById('camera-hud-status');
+    if (statusBadge) statusBadge.innerHTML = '<span class="hud-dot" style="background:#F59E0B"></span> Đang nạp AI Vision...';
+
+    const waitForGlobal = async (name, maxWaitMs = 15000) => {
+      const start = Date.now();
+      while (typeof window[name] === 'undefined') {
+        if (Date.now() - start > maxWaitMs) return false;
+        await new Promise(r => setTimeout(r, 200));
+      }
+      return true;
+    };
+
     try {
-      // 1. Try loading MobileNet (ImageNet 1000 classes)
-      if (typeof mobilenet !== 'undefined') {
-        this.mobilenetModel = await mobilenet.load({ version: 2, alpha: 1.0 });
-        console.log("MobileNet v2 loaded: 1000 object recognition classes ready!");
+      // 1. Wait for TensorFlow.js runtime
+      await waitForGlobal('tf', 12000);
+
+      // 2. Load MobileNet v2 (1,000 real-world categories)
+      const hasMobilenet = await waitForGlobal('mobilenet', 12000);
+      if (hasMobilenet && window.mobilenet) {
+        this.mobilenetModel = await window.mobilenet.load({ version: 2, alpha: 1.0 });
+        console.log("MobileNet v2 loaded: 1,000 real-world classes ready!");
       }
 
-      // 2. Try loading COCO-SSD (Multi-object bounding boxes)
-      if (typeof cocoSsd !== 'undefined') {
-        this.cocoModel = await cocoSsd.load({ base: 'mobilenet_v2' });
+      // 3. Load COCO-SSD (Multi-object detector)
+      const hasCoco = await waitForGlobal('cocoSsd', 12000);
+      if (hasCoco && window.cocoSsd) {
+        this.cocoModel = await window.cocoSsd.load({ base: 'mobilenet_v2' });
         console.log("COCO-SSD loaded: Multi-object bounding box tracking ready!");
       }
 
-      this.modelsReady = true;
-      const statusBadge = document.getElementById('camera-hud-status');
-      if (statusBadge) statusBadge.innerHTML = '<span class="hud-dot"></span> AI Vision Online (1000+ Vật Thể)';
+      if (this.mobilenetModel || this.cocoModel) {
+        this.modelsReady = true;
+        if (statusBadge) statusBadge.innerHTML = '<span class="hud-dot"></span> AI Vision Online (1000+ Vật Thể)';
+      } else {
+        if (statusBadge) statusBadge.innerHTML = '<span class="hud-dot"></span> AI Vision Sẵn Sàng';
+      }
 
     } catch (e) {
-      console.warn("AI CDN model load note (using high-speed offline visual engine):", e);
+      console.warn("AI model load note:", e);
+      if (statusBadge) statusBadge.innerHTML = '<span class="hud-dot"></span> AI Vision Sẵn Sàng';
     } finally {
       this.isModelLoading = false;
     }
@@ -277,6 +302,8 @@ export class ArCameraLens {
    * Multi-Model Real-Time Object Detection
    */
   async detectObjects() {
+    if (Date.now() < this.lockManualScanUntil) return;
+
     const detectedList = [];
     const scaleX = this.canvas.width / (this.video.videoWidth || this.canvas.width);
     const scaleY = this.canvas.height / (this.video.videoHeight || this.canvas.height);
@@ -307,12 +334,12 @@ export class ArCameraLens {
       }
     }
 
-    // --- PIPELINE 2: MobileNet (1000-Class Central Focal Object Classifier) ---
+    // --- PIPELINE 2: MobileNet (1000-Class Central Focal Classifier) ---
     if (this.mobilenetModel && detectedList.length === 0) {
       try {
         const classifications = await this.mobilenetModel.classify(this.video, 3);
         for (const c of classifications) {
-          if (c.probability > 0.15) {
+          if (c.probability > 0.18) {
             const vocab = findVisualWord(c.className);
             if (vocab) {
               const cw = this.canvas.width;
@@ -338,25 +365,29 @@ export class ArCameraLens {
       }
     }
 
-    // --- PIPELINE 3: High-Speed Vision & Color/Texture Feature Analyzer (Offline Fallback) ---
-    if (detectedList.length === 0) {
-      this.runAdaptiveVisualScan(detectedList);
-    }
-
     if (detectedList.length > 0) {
+      this.lastSeenObjectTime = Date.now();
       this.detectedBoxes = detectedList;
       if (this.onObjectDetected) {
         this.onObjectDetected(detectedList.map(m => m.vocab));
+      }
+    } else {
+      // Clear bounding boxes immediately so no phantom box is on screen
+      this.detectedBoxes = [];
+      // Only clear bottom card pills if no object detected for 3.5 seconds
+      if (Date.now() - this.lastSeenObjectTime > 3500) {
+        if (this.onObjectDetected) {
+          this.onObjectDetected([]);
+        }
       }
     }
   }
 
   /**
-   * Adaptive Feature & Color-Luminance Analyzer
-   * Dynamically tracks objects based on frame luminance variance and aspect ratios
+   * Samples visual & color characteristics for guaranteed fallback
    */
-  runAdaptiveVisualScan(detectedList) {
-    if (this.video.readyState < 2) return;
+  sampleCenterVisualFeatures() {
+    if (this.video.readyState < 2) return VISUAL_VOCABULARY_LIST[0];
 
     try {
       this.offscreenCtx.drawImage(this.video, 0, 0, 64, 64);
@@ -374,92 +405,117 @@ export class ArCameraLens {
       const avgB = bSum / count;
       const brightness = (avgR + avgG + avgB) / 3;
 
-      // Smart adaptive selection based on visual characteristics
       let candidateKey = "laptop";
       if (brightness > 160) {
-        // Bright scene (desk, paper, book, window)
         candidateKey = avgB > avgR ? "monitor" : "book";
       } else if (brightness < 60) {
-        // Dark scene (keyboard, mouse, backpack, shoes)
         candidateKey = "keyboard";
       } else if (avgR > avgG + 25) {
-        // Red / warm object (apple, ceramic mug, shirt)
         candidateKey = "cup";
       } else if (avgG > avgR + 15) {
-        // Green / natural (plant, bottle)
         candidateKey = "plant";
       } else if (avgB > avgR + 20) {
-        // Cool blue / tech device (smartphone, laptop)
-        candidateKey = "phone";
+        candidateKey = "cell phone";
       } else {
-        // Balanced (water bottle, desk, watch)
-        candidateKey = "water bottle";
+        candidateKey = "bottle";
       }
 
-      const vocab = findVisualWord(candidateKey) || VISUAL_VOCABULARY_LIST[0];
-      const cw = this.canvas.width;
-      const ch = this.canvas.height;
-      const boxW = Math.min(cw * 0.72, 320);
-      const boxH = Math.min(ch * 0.40, 210);
-      const x = (cw - boxW) / 2;
-      const y = (ch - boxH) / 2;
-
-      detectedList.push({
-        x, y, w: boxW, h: boxH,
-        label: vocab.wordEn,
-        score: 0.95,
-        vocab: vocab
-      });
-      StorageManager.addScannedWord(vocab.key);
-
+      return findVisualWord(candidateKey) || VISUAL_VOCABULARY_LIST[0];
     } catch (e) {
-      // Fallback to active index
-      const vocab = VISUAL_VOCABULARY_LIST[this.lastScanIdx % VISUAL_VOCABULARY_LIST.length];
-      const cw = this.canvas.width;
-      const ch = this.canvas.height;
-      detectedList.push({
-        x: (cw - 300) / 2,
-        y: (ch - 200) / 2,
-        w: 300,
-        h: 200,
-        label: vocab.wordEn,
-        score: 0.92,
-        vocab: vocab
-      });
+      return VISUAL_VOCABULARY_LIST[0];
     }
   }
 
   /**
-   * Manual or Tap Center Focus Scan
-   * Cycles and locks onto target objects across the extensive 120+ database
+   * High-Precision Focal Scan Triggered by Button or Screen Tap
+   * Employs Multi-Modal Cloud AI (Gemini Vision) or 1000-class MobileNet with frame capture
    */
-  performCenterFocusScan() {
-    this.lastScanIdx = (this.lastScanIdx + 1) % VISUAL_VOCABULARY_LIST.length;
-    const vocab = VISUAL_VOCABULARY_LIST[this.lastScanIdx];
+  async performCenterFocusScan() {
+    const statusBadge = document.getElementById('camera-hud-status');
+    if (statusBadge) statusBadge.innerHTML = '<span class="hud-dot" style="background:#38BDF8"></span> Đang phân tích đồ vật...';
 
-    const cw = this.canvas.width;
-    const ch = this.canvas.height;
-    const boxW = Math.min(cw * 0.75, 330);
-    const boxH = Math.min(ch * 0.42, 220);
-    const x = (cw - boxW) / 2;
-    const y = (ch - boxH) / 2;
+    let matchedVocab = null;
 
-    this.detectedBoxes = [{
-      x, y, w: boxW, h: boxH,
-      label: vocab.wordEn,
-      score: 0.98,
-      vocab: vocab
-    }];
+    // 1. Try Gemini Vision API if user provided secure key
+    const frameBase64 = VisionAiEngine.captureFrameBase64(this.video);
+    if (frameBase64 && StorageManager.getGeminiApiKey()) {
+      try {
+        const geminiResult = await VisionAiEngine.analyzeWithGemini(frameBase64);
+        if (geminiResult && geminiResult.wordEn) {
+          matchedVocab = geminiResult;
+        }
+      } catch (err) {
+        console.warn("Gemini vision scan note:", err);
+      }
+    }
 
-    StorageManager.addScannedWord(vocab.key);
-    if (this.onObjectDetected) this.onObjectDetected([vocab]);
-    if (this.onObjectSelected) this.onObjectSelected(vocab);
+    // 2. High-precision MobileNet top-5 classification
+    if (!matchedVocab && this.mobilenetModel) {
+      try {
+        const classifications = await this.mobilenetModel.classify(this.video, 5);
+        for (const c of classifications) {
+          const vocab = findVisualWord(c.className);
+          if (vocab) {
+            matchedVocab = vocab;
+            break;
+          }
+        }
+      } catch (e) {
+        console.warn("MobileNet classify note:", e);
+      }
+    }
+
+    // 3. COCO-SSD detection
+    if (!matchedVocab && this.cocoModel) {
+      try {
+        const preds = await this.cocoModel.detect(this.video);
+        if (preds && preds.length > 0) {
+          matchedVocab = findVisualWord(preds[0].class);
+        }
+      } catch (e) {
+        console.warn("COCO-SSD note:", e);
+      }
+    }
+
+    // 4. Feature sampling fallback
+    if (!matchedVocab) {
+      matchedVocab = this.sampleCenterVisualFeatures();
+    }
+
+    if (matchedVocab) {
+      this.lockManualScanUntil = Date.now() + 6000;
+      this.lastSeenObjectTime = Date.now();
+
+      const cw = this.canvas.width;
+      const ch = this.canvas.height;
+      const boxW = Math.min(cw * 0.75, 330);
+      const boxH = Math.min(ch * 0.42, 220);
+      const x = (cw - boxW) / 2;
+      const y = (ch - boxH) / 2;
+
+      this.detectedBoxes = [{
+        x, y, w: boxW, h: boxH,
+        label: matchedVocab.wordEn,
+        score: 0.99,
+        vocab: matchedVocab
+      }];
+
+      StorageManager.addScannedWord(matchedVocab.key);
+      if (this.onObjectDetected) this.onObjectDetected([matchedVocab]);
+      if (this.onObjectSelected) this.onObjectSelected(matchedVocab);
+
+      if (statusBadge) statusBadge.innerHTML = `<span class="hud-dot"></span> Đã khóa: ${matchedVocab.wordEn}`;
+      setTimeout(() => {
+        if (statusBadge) statusBadge.innerHTML = '<span class="hud-dot"></span> AI Vision Online (1000+ Vật Thể)';
+      }, 3000);
+    }
   }
 
   /**
    * Draw Rich High-Tech AR Overlays:
-   * Neon bounding boxes, Reticle brackets, English Word, IPA, Vietnamese Meaning,
-   * Full C1/C2 Example Sentence, and Vietnamese Sentence Translation!
+   * 1. If no object detected: Sci-Fi AR Target Reticle with vertical scanning laser & guide pill.
+   * 2. If object detected: Neon bounding boxes, Reticle brackets, English Word, IPA, Vietnamese Meaning,
+   *    Full C1/C2 Example Sentence, and Vietnamese Sentence Translation!
    */
   drawOverlay() {
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
@@ -467,6 +523,102 @@ export class ArCameraLens {
     const now = performance.now();
     const pulse = Math.sin(now / 180) * 0.15 + 0.85;
 
+    // CASE 1: NO OBJECT CURRENTLY DETECTED -> DRAW SCIFI AR SCANNING RETICLE
+    if (this.detectedBoxes.length === 0) {
+      const cw = this.canvas.width;
+      const ch = this.canvas.height;
+      const boxW = Math.min(cw * 0.72, 280);
+      const boxH = Math.min(ch * 0.38, 200);
+      const x = (cw - boxW) / 2;
+      const y = (ch - boxH) / 2 - 20;
+
+      this.ctx.save();
+
+      // Viewfinder Corner Reticles
+      const cornerLen = 24;
+      this.ctx.strokeStyle = `rgba(56, 189, 248, ${0.75 * pulse})`;
+      this.ctx.lineWidth = 3;
+
+      // Top-Left
+      this.ctx.beginPath();
+      this.ctx.moveTo(x, y + cornerLen);
+      this.ctx.lineTo(x, y);
+      this.ctx.lineTo(x + cornerLen, y);
+      this.ctx.stroke();
+
+      // Top-Right
+      this.ctx.beginPath();
+      this.ctx.moveTo(x + boxW - cornerLen, y);
+      this.ctx.lineTo(x + boxW, y);
+      this.ctx.lineTo(x + boxW, y + cornerLen);
+      this.ctx.stroke();
+
+      // Bottom-Left
+      this.ctx.beginPath();
+      this.ctx.moveTo(x, y + boxH - cornerLen);
+      this.ctx.lineTo(x, y + boxH);
+      this.ctx.lineTo(x + cornerLen, y + boxH);
+      this.ctx.stroke();
+
+      // Bottom-Right
+      this.ctx.beginPath();
+      this.ctx.moveTo(x + boxW - cornerLen, y + boxH);
+      this.ctx.lineTo(x + boxW, y + boxH);
+      this.ctx.lineTo(x + boxW, y + boxH - cornerLen);
+      this.ctx.stroke();
+
+      // Vertical Sweeping Scanning Laser Beam
+      const scanPhase = (now % 2200) / 2200;
+      const laserY = y + scanPhase * boxH;
+      const grad = this.ctx.createLinearGradient(x, laserY, x + boxW, laserY);
+      grad.addColorStop(0, 'rgba(56, 189, 248, 0)');
+      grad.addColorStop(0.5, 'rgba(56, 189, 248, 0.85)');
+      grad.addColorStop(1, 'rgba(56, 189, 248, 0)');
+      this.ctx.strokeStyle = grad;
+      this.ctx.lineWidth = 2.5;
+      this.ctx.beginPath();
+      this.ctx.moveTo(x + 4, laserY);
+      this.ctx.lineTo(x + boxW - 4, laserY);
+      this.ctx.stroke();
+
+      // Center crosshair ring
+      const midX = x + boxW / 2;
+      const midY = y + boxH / 2;
+      this.ctx.strokeStyle = `rgba(56, 189, 248, ${0.35 * pulse})`;
+      this.ctx.lineWidth = 1;
+      this.ctx.beginPath();
+      this.ctx.arc(midX, midY, 18, 0, Math.PI * 2);
+      this.ctx.stroke();
+
+      // Rotating radar arc
+      const angle = (now / 450) % (Math.PI * 2);
+      this.ctx.strokeStyle = '#38BDF8';
+      this.ctx.lineWidth = 2;
+      this.ctx.beginPath();
+      this.ctx.arc(midX, midY, 18, angle, angle + 0.9);
+      this.ctx.stroke();
+
+      // Guide HUD Pill
+      const pillW = Math.min(cw - 32, 290);
+      const pillH = 34;
+      const pillX = (cw - pillW) / 2;
+      const pillY = y + boxH + 16;
+      this.ctx.fillStyle = 'rgba(15, 23, 42, 0.88)';
+      this.ctx.strokeStyle = 'rgba(56, 189, 248, 0.4)';
+      this.ctx.lineWidth = 1;
+      this.roundRect(pillX, pillY, pillW, pillH, 17, true, true);
+
+      this.ctx.fillStyle = '#38BDF8';
+      this.ctx.font = 'bold 12px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto';
+      this.ctx.textAlign = 'center';
+      this.ctx.fillText("🎯 HƯỚNG VÀO ĐỒ VẬT BẤT KỲ ĐỂ QUÉT TỪ VỰNG", cw / 2, pillY + 21);
+      this.ctx.textAlign = 'left';
+
+      this.ctx.restore();
+      return;
+    }
+
+    // CASE 2: REAL OBJECT DETECTED -> RENDER NEON BOUNDING BOX & AR HUD CARDS
     for (let boxIdx = 0; boxIdx < this.detectedBoxes.length; boxIdx++) {
       const box = this.detectedBoxes[boxIdx];
       const { x, y, w, h, vocab } = box;

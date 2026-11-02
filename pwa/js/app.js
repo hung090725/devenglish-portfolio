@@ -632,6 +632,36 @@ class AppController {
       });
     }
 
+    // Gemini Vision Key Settings
+    const keyInput = document.getElementById('input-gemini-key');
+    const keyMsg = document.getElementById('key-status-msg');
+    const existingKey = StorageManager.getGeminiApiKey();
+    if (keyInput && existingKey) {
+      keyInput.value = existingKey;
+      if (keyMsg) {
+        keyMsg.style.display = 'block';
+        keyMsg.textContent = '🔒 Đã kích hoạt Siêu AI Vision thành công!';
+      }
+    }
+
+    document.getElementById('btn-save-key')?.addEventListener('click', () => {
+      const val = keyInput?.value?.trim() || '';
+      StorageManager.setGeminiApiKey(val);
+      if (keyMsg) {
+        keyMsg.style.display = 'block';
+        keyMsg.textContent = val ? '✅ Đã lưu khóa bảo mật! Hệ thống sẵn sàng quét mọi vật thể.' : 'Đã xóa khóa.';
+      }
+    });
+
+    document.getElementById('btn-clear-key')?.addEventListener('click', () => {
+      if (keyInput) keyInput.value = '';
+      StorageManager.setGeminiApiKey('');
+      if (keyMsg) {
+        keyMsg.style.display = 'block';
+        keyMsg.textContent = 'Đã hủy kích hoạt khóa.';
+      }
+    });
+
     document.getElementById('btn-clear-cache')?.addEventListener('click', () => {
       if (confirm("Bạn có chắc muốn xóa lịch sử học và bộ nhớ đệm?")) {
         localStorage.clear();
