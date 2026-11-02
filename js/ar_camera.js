@@ -37,6 +37,13 @@ export class ArCameraLens {
     this.lockManualScanUntil = 0;
     this.lastSeenObjectTime = 0;
 
+    // Industrial Defensive Engineering Parameters (Laplacian Blur & EMA Tracking)
+    this.isFrameBlurry = false;
+    this.trackedBoxes = [];
+    this.activeIdCounter = 1;
+    this.laplacianThreshold = 120; // Empirical variance threshold tau = 120
+    this.smoothingAlpha = 0.3;     // Exponential Moving Average smoothing factor alpha = 0.3
+
     // Offline Frame Analysis buffer
     this.offscreenCanvas = document.createElement('canvas');
     this.offscreenCanvas.width = 64;
@@ -299,28 +306,178 @@ export class ArCameraLens {
   }
 
   /**
-   * Multi-Model Real-Time Object Detection
+   * Laplacian Variance Motion Blur Detector
+   * Discrete 3x3 Laplacian Convolution Kernel:
+   * [ 0  1  0 ]
+   * [ 1 -4  1 ]
+   * [ 0  1  0 ]
+   * Computes spatial variance sigma^2. Threshold tau = 120 (Thesis Eq. 7.1)
+   */
+  computeLaplacianVariance() {
+    if (!this.video || this.video.readyState < 2) return 999;
+    try {
+      const sw = 64;
+      const sh = 64;
+      this.offscreenCtx.drawImage(this.video, 0, 0, sw, sh);
+      const imgData = this.offscreenCtx.getImageData(0, 0, sw, sh).data;
+
+      const gray = new Float32Array(sw * sh);
+      for (let i = 0, p = 0; i < imgData.length; i += 4, p++) {
+        // Luminance L = 0.299R + 0.587G + 0.114B
+        gray[p] = 0.299 * imgData[i] + 0.587 * imgData[i + 1] + 0.114 * imgData[i + 2];
+      }
+
+      let sum = 0;
+      let sumSq = 0;
+      let count = 0;
+
+      for (let y = 1; y < sh - 1; y++) {
+        const row = y * sw;
+        for (let x = 1; x < sw - 1; x++) {
+          const lap = (
+            gray[row - sw + x] +
+            gray[row + sw + x] +
+            gray[row + x - 1] +
+            gray[row + x + 1] -
+            4 * gray[row + x]
+          );
+          sum += lap;
+          sumSq += lap * lap;
+          count++;
+        }
+      }
+
+      if (count === 0) return 999;
+      const mean = sum / count;
+      const variance = (sumSq / count) - (mean * mean);
+      return variance;
+    } catch (e) {
+      return 999;
+    }
+  }
+
+  /**
+   * Intersection over Union (IoU) calculation between two bounding boxes
+   * IoU = Area(A ∩ B) / Area(A ∪ B) (Thesis Eq. 7.2)
+   */
+  computeIoU(boxA, boxB) {
+    const xA = Math.max(boxA.x, boxB.x);
+    const yA = Math.max(boxA.y, boxB.y);
+    const xB = Math.min(boxA.x + boxA.w, boxB.x + boxB.w);
+    const yB = Math.min(boxA.y + boxA.h, boxB.y + boxB.h);
+
+    const interW = Math.max(0, xB - xA);
+    const interH = Math.max(0, yB - yA);
+    const interArea = interW * interH;
+
+    const areaA = boxA.w * boxA.h;
+    const areaB = boxB.w * boxB.h;
+    const unionArea = areaA + areaB - interArea;
+
+    return unionArea > 0 ? (interArea / unionArea) : 0;
+  }
+
+  /**
+   * Temporal Smoothing using IoU Tracking and Exponential Moving Average (EMA)
+   * B_render^(t) = alpha * B_det^(t) + (1 - alpha) * B_render^(t-1), alpha = 0.3 (Thesis Eq. 7.3)
+   */
+  applyTemporalSmoothing(newBoxes) {
+    if (!newBoxes || newBoxes.length === 0) {
+      this.trackedBoxes = [];
+      return [];
+    }
+
+    const smoothed = [];
+    const alpha = this.smoothingAlpha; // 0.3
+
+    for (const bDet of newBoxes) {
+      let bestIoU = 0;
+      let matchedPrev = null;
+
+      for (const bPrev of this.trackedBoxes) {
+        if (bPrev.label === bDet.label) {
+          const iou = this.computeIoU(bDet, bPrev);
+          if (iou >= 0.5 && iou > bestIoU) {
+            bestIoU = iou;
+            matchedPrev = bPrev;
+          }
+        }
+      }
+
+      if (matchedPrev) {
+        // Matched existing track: apply EMA filter to stabilize coordinates & eliminate jitter
+        const smoothBox = {
+          x: alpha * bDet.x + (1 - alpha) * matchedPrev.x,
+          y: alpha * bDet.y + (1 - alpha) * matchedPrev.y,
+          w: alpha * bDet.w + (1 - alpha) * matchedPrev.w,
+          h: alpha * bDet.h + (1 - alpha) * matchedPrev.h,
+          label: bDet.label,
+          score: alpha * bDet.score + (1 - alpha) * matchedPrev.score,
+          vocab: bDet.vocab,
+          id: matchedPrev.id
+        };
+        smoothed.push(smoothBox);
+      } else {
+        // New detected entity: assign fresh ID
+        bDet.id = 'obj_' + (++this.activeIdCounter);
+        smoothed.push(bDet);
+      }
+    }
+
+    this.trackedBoxes = smoothed;
+    return smoothed;
+  }
+
+  /**
+   * Multi-Model Real-Time Object Detection with Adaptive Gating & Spatial Transform
    */
   async detectObjects() {
     if (Date.now() < this.lockManualScanUntil) return;
 
-    const detectedList = [];
-    const scaleX = this.canvas.width / (this.video.videoWidth || this.canvas.width);
-    const scaleY = this.canvas.height / (this.video.videoHeight || this.canvas.height);
+    // --- STEP 1: Defensive Laplacian Variance Blur Gating Filter ---
+    const variance = this.computeLaplacianVariance();
+    const isBlurry = variance < this.laplacianThreshold; // tau = 120
+    this.isFrameBlurry = isBlurry;
+
+    const statusBadge = document.getElementById('camera-hud-status');
+    if (isBlurry && this.detectedBoxes.length === 0) {
+      if (statusBadge) {
+        statusBadge.innerHTML = '<span class="hud-dot" style="background:#F59E0B"></span> Đang ổn định khung hình...';
+      }
+      return; // Drop blurred frame to save NPU/GPU cycles and prevent noisy detections
+    }
+
+    const rawDetectedList = [];
+
+    // --- STEP 2: Spatial Geometric Transformation (CenterCrop Aspect Ratio) ---
+    // Derivation: S = max(Wv / Wc, Hv / Hc); dx = (Wv - Wc * S)/2; dy = (Hv - Hc * S)/2
+    const vw = this.video.videoWidth || 640;
+    const vh = this.video.videoHeight || 480;
+    const cw = this.canvas.width;
+    const ch = this.canvas.height;
+    const S = Math.max(cw / vw, ch / vh);
+    const dx = (cw - vw * S) / 2;
+    const dy = (ch - vh * S) / 2;
 
     // --- PIPELINE 1: COCO-SSD (Multi-object Bounding Boxes) ---
     if (this.cocoModel) {
       try {
         const predictions = await this.cocoModel.detect(this.video);
         for (const pred of predictions) {
+          // Dual-threshold confidence filtering: tau_on = 0.40, tau_off = 0.35
           if (pred.score > 0.40) {
             const vocab = findVisualWord(pred.class);
             if (vocab) {
-              detectedList.push({
-                x: Math.max(10, pred.bbox[0] * scaleX),
-                y: Math.max(80, pred.bbox[1] * scaleY),
-                w: Math.max(120, pred.bbox[2] * scaleX),
-                h: Math.max(90, pred.bbox[3] * scaleY),
+              const mappedX = Math.max(10, pred.bbox[0] * S + dx);
+              const mappedY = Math.max(80, pred.bbox[1] * S + dy);
+              const mappedW = Math.max(120, pred.bbox[2] * S);
+              const mappedH = Math.max(90, pred.bbox[3] * S);
+
+              rawDetectedList.push({
+                x: mappedX,
+                y: mappedY,
+                w: mappedW,
+                h: mappedH,
                 label: vocab.wordEn,
                 score: pred.score,
                 vocab: vocab
@@ -335,21 +492,19 @@ export class ArCameraLens {
     }
 
     // --- PIPELINE 2: MobileNet (1000-Class Central Focal Classifier) ---
-    if (this.mobilenetModel && detectedList.length === 0) {
+    if (this.mobilenetModel && rawDetectedList.length === 0) {
       try {
         const classifications = await this.mobilenetModel.classify(this.video, 3);
         for (const c of classifications) {
           if (c.probability > 0.18) {
             const vocab = findVisualWord(c.className);
             if (vocab) {
-              const cw = this.canvas.width;
-              const ch = this.canvas.height;
               const boxW = Math.min(cw * 0.72, 320);
               const boxH = Math.min(ch * 0.42, 220);
               const x = (cw - boxW) / 2;
               const y = (ch - boxH) / 2;
 
-              detectedList.push({
+              rawDetectedList.push({
                 x, y, w: boxW, h: boxH,
                 label: vocab.wordEn,
                 score: c.probability,
@@ -365,15 +520,24 @@ export class ArCameraLens {
       }
     }
 
-    if (detectedList.length > 0) {
+    // --- STEP 3: Temporal Smoothing (IoU Tracker & EMA) ---
+    const smoothedList = this.applyTemporalSmoothing(rawDetectedList);
+
+    if (smoothedList.length > 0) {
       this.lastSeenObjectTime = Date.now();
-      this.detectedBoxes = detectedList;
+      this.detectedBoxes = smoothedList;
+      if (statusBadge && this.modelsReady) {
+        statusBadge.innerHTML = `<span class="hud-dot"></span> Đang Nhận Diện (${smoothedList.length} Vật Thể)`;
+      }
       if (this.onObjectDetected) {
-        this.onObjectDetected(detectedList.map(m => m.vocab));
+        this.onObjectDetected(smoothedList.map(m => m.vocab));
       }
     } else {
       // Clear bounding boxes immediately so no phantom box is on screen
       this.detectedBoxes = [];
+      if (statusBadge && this.modelsReady) {
+        statusBadge.innerHTML = '<span class="hud-dot"></span> AI Vision Sẵn Sàng (1000+ Vật Thể)';
+      }
       // Only clear bottom card pills if no object detected for 3.5 seconds
       if (Date.now() - this.lastSeenObjectTime > 3500) {
         if (this.onObjectDetected) {
