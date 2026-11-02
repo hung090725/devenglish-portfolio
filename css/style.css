@@ -150,6 +150,7 @@ body {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  pointer-events: none !important;
 }
 
 #camera-canvas {
@@ -158,8 +159,8 @@ body {
   left: 0;
   width: 100%;
   height: 100%;
-  z-index: 10;
-  touch-action: manipulation;
+  z-index: 5 !important;
+  pointer-events: none !important;
 }
 
 /* AR Viewport HUD Controls */
@@ -168,10 +169,11 @@ body {
   top: 16px;
   left: 16px;
   right: 16px;
-  z-index: 20;
+  z-index: 85 !important;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  pointer-events: auto !important;
 }
 
 .hud-badge {
@@ -187,6 +189,7 @@ body {
   display: flex;
   align-items: center;
   gap: 6px;
+  pointer-events: auto !important;
 }
 
 .hud-dot {
@@ -205,38 +208,47 @@ body {
 .hud-buttons {
   display: flex;
   gap: 8px;
+  pointer-events: auto !important;
+  z-index: 90 !important;
 }
 
 .hud-icon-btn {
-  width: 40px;
-  height: 40px;
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
-  background: rgba(15, 23, 42, 0.75);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(15, 23, 42, 0.85);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1.5px solid rgba(255, 255, 255, 0.25);
   color: #FFFFFF;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 18px;
-  cursor: pointer;
-  transition: transform 0.2s;
+  font-size: 19px;
+  cursor: pointer !important;
+  pointer-events: auto !important;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+  -webkit-user-select: none;
+  transition: transform 0.15s, background-color 0.15s;
 }
 
 .hud-icon-btn:active {
-  transform: scale(0.9);
+  transform: scale(0.88);
+  background: rgba(56, 189, 248, 0.3);
 }
 
 .camera-hud-bottom {
   position: absolute;
-  bottom: 20px;
+  bottom: 18px;
   left: 16px;
   right: 16px;
-  z-index: 20;
+  z-index: 85 !important;
   display: flex;
   flex-direction: column;
   gap: 12px;
+  pointer-events: auto !important;
 }
 
 .detected-cards-scroll {
@@ -252,19 +264,29 @@ body {
 }
 
 .object-pill-card {
-  background: rgba(19, 27, 46, 0.88);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid var(--border-highlight);
+  background: rgba(19, 27, 46, 0.94);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1.5px solid var(--border-highlight);
   border-radius: 16px;
   padding: 10px 14px;
-  min-width: 170px;
+  min-width: 190px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
-  cursor: pointer;
+  cursor: pointer !important;
+  pointer-events: auto !important;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+  -webkit-user-select: none;
   animation: slideUp 0.3s ease-out;
+}
+
+.object-pill-card:active {
+  transform: scale(0.96);
+  border-color: var(--accent-cyan);
 }
 
 @keyframes slideUp {
@@ -272,10 +294,29 @@ body {
   to { opacity: 1; transform: translateY(0); }
 }
 
+.object-pill-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
 .object-pill-info h4 {
   font-size: 15px;
   font-weight: 700;
   color: #FFFFFF;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.object-pill-level {
+  font-size: 9px;
+  font-weight: 800;
+  padding: 2px 5px;
+  border-radius: 4px;
+  background: rgba(99, 102, 241, 0.3);
+  color: #818CF8;
+  border: 1px solid rgba(99, 102, 241, 0.5);
 }
 
 .object-pill-info p {
@@ -283,44 +324,72 @@ body {
   color: var(--accent-cyan);
 }
 
+.object-pill-sentence {
+  font-size: 11px;
+  color: #94A3B8;
+  font-style: italic;
+  max-width: 220px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 .object-pill-audio {
-  width: 32px;
-  height: 32px;
+  width: 38px;
+  height: 38px;
   border-radius: 50%;
-  background: rgba(56, 189, 248, 0.15);
+  background: rgba(56, 189, 248, 0.2);
   color: var(--accent-cyan);
-  border: none;
-  font-size: 14px;
+  border: 1px solid rgba(56, 189, 248, 0.4);
+  font-size: 16px;
   display: flex;
   align-items: center;
   justify-content: center;
-  cursor: pointer;
+  cursor: pointer !important;
+  pointer-events: auto !important;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  flex-shrink: 0;
+  margin-left: 8px;
+}
+
+.object-pill-audio:active {
+  transform: scale(0.9);
+  background: rgba(56, 189, 248, 0.4);
 }
 
 .camera-controls-bar {
   display: flex;
   justify-content: center;
   gap: 16px;
+  pointer-events: auto !important;
+  z-index: 90 !important;
 }
 
 .capture-scan-btn {
   background: linear-gradient(135deg, #2563EB, #06B6D4);
   color: #FFFFFF;
   border: none;
-  padding: 12px 24px;
-  border-radius: 24px;
-  font-size: 15px;
-  font-weight: 600;
-  box-shadow: 0 4px 18px rgba(6, 182, 212, 0.4);
-  cursor: pointer;
+  padding: 14px 28px;
+  border-radius: 28px;
+  font-size: 16px;
+  font-weight: 700;
+  box-shadow: 0 4px 22px rgba(6, 182, 212, 0.5);
+  cursor: pointer !important;
+  pointer-events: auto !important;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+  -webkit-user-select: none;
   display: flex;
   align-items: center;
   gap: 8px;
-  transition: transform 0.2s;
+  transition: transform 0.15s, box-shadow 0.15s;
 }
 
 .capture-scan-btn:active {
-  transform: scale(0.96);
+  transform: scale(0.94);
+  box-shadow: 0 2px 10px rgba(6, 182, 212, 0.3);
 }
 
 /* ===================================================
@@ -811,25 +880,27 @@ body {
  * =================================================== */
 .ios-install-banner {
   position: fixed;
-  top: max(58px, calc(var(--safe-top) + 54px));
+  top: max(60px, calc(var(--safe-top) + 54px));
   left: 14px;
   right: 14px;
-  background: rgba(30, 41, 59, 0.95);
+  background: rgba(30, 41, 59, 0.96);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   border: 1px solid var(--border-highlight);
   border-radius: 16px;
   padding: 12px 14px;
-  z-index: 60;
+  z-index: 100;
   display: flex;
   align-items: center;
   gap: 12px;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
   animation: slideDown 0.4s ease-out;
+  touch-action: manipulation;
+  pointer-events: auto !important;
 }
 
 @keyframes slideDown {
-  from { opacity: 0; transform: translateY(-12px); }
+  from { opacity: 0; transform: translateY(-16px); }
   to { opacity: 1; transform: translateY(0); }
 }
 
@@ -855,13 +926,28 @@ body {
   font-size: 11px;
   color: var(--text-secondary);
   margin-top: 2px;
+  line-height: 1.4;
 }
 
 .banner-close-btn {
-  background: transparent;
+  background: rgba(255, 255, 255, 0.1);
   border: none;
-  color: var(--text-muted);
-  font-size: 18px;
-  cursor: pointer;
-  padding: 4px;
+  color: #FFFFFF;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer !important;
+  pointer-events: auto !important;
+  touch-action: manipulation;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.banner-close-btn:active {
+  background: rgba(255, 255, 255, 0.25);
+  transform: scale(0.9);
 }
