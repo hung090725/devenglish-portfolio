@@ -2,7 +2,7 @@
  * DevEnglish AI PWA Service Worker (100% Offline Capability)
  */
 
-const CACHE_NAME = 'devenglish-cache-v4';
+const CACHE_NAME = 'devenglish-cache-v5';
 
 const STATIC_ASSETS = [
   './',

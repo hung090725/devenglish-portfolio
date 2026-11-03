@@ -127,6 +127,15 @@ class AppController {
     });
 
     // Camera action buttons with instant zero-latency touch
+    const btnAutoVoice = document.getElementById('btn-auto-voice');
+    attachFastClick(btnAutoVoice, () => {
+      const active = this.camera.toggleAutoVoice();
+      if (btnAutoVoice) {
+        btnAutoVoice.style.color = active ? '#10B981' : '#FFFFFF';
+        btnAutoVoice.innerHTML = active ? '🗣️' : '🔊';
+      }
+    });
+
     const btnFlip = document.getElementById('btn-flip-cam');
     attachFastClick(btnFlip, () => {
       this.camera.toggleCamera();
