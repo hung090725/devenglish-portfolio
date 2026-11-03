@@ -7,6 +7,7 @@ import { SpeechTutor } from './speech_tutor.js';
 import { ItEnglishEngine } from './it_english_engine.js';
 import { StorageManager } from './storage.js';
 import { SM2Engine } from './spaced_repetition.js';
+import { QuestEngine } from './quest_engine.js';
 import { VISUAL_VOCABULARY_LIST, findVisualWord } from '../data/visual_vocab_db.js';
 import { CODE_SNIPPETS, TECH_ARTICLES, INTERVIEW_QUESTIONS } from '../data/it_english_db.js';
 
@@ -157,6 +158,32 @@ class AppController {
     attachFastClick(btnScan, () => {
       this.camera.performCenterFocusScan();
     });
+
+    // Interactive CEFR level filter bar (ALL, A1-B1, B2, C1-C2)
+    const cefrBtns = document.querySelectorAll('.cefr-pill-btn');
+    cefrBtns.forEach(btn => {
+      attachFastClick(btn, () => {
+        cefrBtns.forEach(b => {
+          b.classList.remove('active');
+          b.style.background = 'transparent';
+          b.style.color = '#94A3B8';
+        });
+        btn.classList.add('active');
+        btn.style.background = '#38BDF8';
+        btn.style.color = '#0F172A';
+        const level = btn.dataset.cefr;
+        if (this.camera) this.camera.setCefrFilter(level);
+      });
+    });
+
+    // Scavenger Quest Pill Click
+    const questPill = document.getElementById('scavenger-quest-pill');
+    if (questPill) {
+      attachFastClick(questPill, () => {
+        const details = QuestEngine.getActiveQuestDetails();
+        alert(`🎯 ${details.title}\n\nNhiệm vụ: ${details.desc}\nThưởng: +${details.points} XP\nĐiểm hiện tại: ${details.exp} XP\nChuỗi ngày: ${details.streak} ngày 🔥`);
+      });
+    }
 
     // Start camera if on camera tab
     if (this.activeTab === 'tab-camera') {
@@ -575,6 +602,19 @@ class AppController {
 
   openDeepKnowledgeSheet(vocab) {
     if (!vocab) return;
+
+    // Display captured real-world thumbnail if available (Ý tưởng 18)
+    const thumbWrapper = document.getElementById('sheet-thumbnail-wrapper');
+    const thumbImg = document.getElementById('sheet-thumbnail-img');
+    const savedThumb = StorageManager.getWordThumbnail(vocab.key);
+    if (thumbWrapper && thumbImg) {
+      if (savedThumb) {
+        thumbImg.src = savedThumb;
+        thumbWrapper.style.display = 'block';
+      } else {
+        thumbWrapper.style.display = 'none';
+      }
+    }
 
     document.getElementById('sheet-word').textContent = vocab.wordEn;
     document.getElementById('sheet-ipa').textContent = `${vocab.ipa} • [Trọng âm: ${vocab.syllableStress}]`;

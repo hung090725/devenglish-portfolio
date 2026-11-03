@@ -239,6 +239,70 @@ body {
   background: rgba(56, 189, 248, 0.3);
 }
 
+.hud-cefr-bar {
+  position: absolute;
+  top: 68px;
+  right: 16px;
+  display: flex;
+  gap: 4px;
+  z-index: 85 !important;
+  background: rgba(15, 23, 42, 0.88);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  padding: 3px 6px;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  pointer-events: auto !important;
+}
+
+.cefr-pill-btn {
+  background: transparent;
+  color: #94A3B8;
+  border: none;
+  border-radius: 12px;
+  padding: 4px 9px;
+  font-size: 10px;
+  font-weight: 700;
+  cursor: pointer;
+  pointer-events: auto !important;
+  transition: all 0.2s ease;
+}
+
+.cefr-pill-btn.active {
+  background: #38BDF8 !important;
+  color: #0F172A !important;
+  box-shadow: 0 0 10px rgba(56, 189, 248, 0.4);
+}
+
+#scavenger-quest-pill {
+  position: absolute;
+  top: 104px;
+  left: 16px;
+  right: 16px;
+  background: rgba(15, 23, 42, 0.90);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(245, 158, 11, 0.5);
+  border-radius: 12px;
+  padding: 7px 12px;
+  font-size: 11px;
+  color: #FBBF24;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  z-index: 80 !important;
+  pointer-events: auto !important;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.45);
+  transition: transform 0.15s, border-color 0.2s;
+}
+
+#scavenger-quest-pill:active {
+  transform: scale(0.98);
+  border-color: #FBBF24;
+}
+
 .camera-hud-bottom {
   position: absolute;
   bottom: 18px;

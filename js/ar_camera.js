@@ -7,6 +7,8 @@
 import { findVisualWord, VISUAL_VOCABULARY_LIST } from '../data/visual_vocab_db.js';
 import { StorageManager } from './storage.js';
 import { VisionAiEngine } from './vision_ai.js';
+import { SoundFxEngine } from './sound_fx.js';
+import { QuestEngine } from './quest_engine.js';
 
 export class ArCameraLens {
   constructor({ videoElement, canvasElement, containerElement, onObjectDetected, onObjectSelected, onError, onCameraReady }) {
@@ -47,6 +49,17 @@ export class ArCameraLens {
     this.lastSpokenWord = '';
     this.lastSpokenTime = 0;
 
+    // Advanced 20-Feature Pillars (Radar Mesh, Anchors, CEFR Filter & Quests)
+    this.cefrFilter = 'ALL';       // 'ALL' | 'A1-B1' | 'B2' | 'C1-C2'
+    this.focusReticleScale = 1.0;  // Pinch-to-focus scaling
+    this.focusCenter = null;       // Tap-to-focus custom coordinate
+    this.stickyTags = new Map();   // Spatial AR sticky tags (persistence memory)
+    this.currentMacroScene = { sceneEn: 'Everyday Environment', sceneVi: 'Môi trường xung quanh', icon: '🌐' };
+    this.stableTargetWord = '';
+    this.stableTargetStart = 0;
+    this.lastLockedLabel = '';
+    this.thumbnailCapturedForWord = false;
+
     // Offline Frame Analysis buffer
     this.offscreenCanvas = document.createElement('canvas');
     this.offscreenCanvas.width = 64;
@@ -56,16 +69,22 @@ export class ArCameraLens {
     this.initTouchHandling();
   }
 
+  setCefrFilter(level) {
+    this.cefrFilter = level || 'ALL';
+  }
+
   initTouchHandling() {
     // Canvas must have pointer-events: none in CSS so it never blocks HUD button taps!
     this.canvas.style.pointerEvents = 'none';
 
     let touchMoved = false;
     let startX = 0, startY = 0;
+    let initialPinchDistance = null;
+    let baseReticleScale = 1.0;
 
     const handleTap = (clientX, clientY, target) => {
       // Ignore if user tapped a button, card, header, or install banner
-      if (target && target.closest('button, .hud-icon-btn, .object-pill-card, .camera-hud-top, .camera-hud-bottom, .bottom-sheet, .app-header, .ios-install-banner')) {
+      if (target && target.closest('button, .hud-icon-btn, .object-pill-card, .camera-hud-top, .camera-hud-bottom, .bottom-sheet, .app-header, .ios-install-banner, .hud-cefr-bar, #scavenger-quest-pill')) {
         return;
       }
 
@@ -75,9 +94,11 @@ export class ArCameraLens {
       const x = (clientX - rect.left) * scaleX;
       const y = (clientY - rect.top) * scaleY;
 
+      this.focusCenter = { x, y };
+
       let tappedVocab = null;
       for (const box of this.detectedBoxes) {
-        if (x >= box.x && x <= box.x + box.w && y >= box.y - 130 && y <= box.y + box.h + 30) {
+        if (x >= box.x && x <= box.x + box.w && y >= box.y - 140 && y <= box.y + box.h + 30) {
           tappedVocab = box.vocab;
           break;
         }
@@ -93,14 +114,25 @@ export class ArCameraLens {
 
     this.container.addEventListener('touchstart', (e) => {
       touchMoved = false;
-      if (e.touches && e.touches[0]) {
+      if (e.touches && e.touches.length === 2) {
+        const dx = e.touches[0].clientX - e.touches[1].clientX;
+        const dy = e.touches[0].clientY - e.touches[1].clientY;
+        initialPinchDistance = Math.hypot(dx, dy);
+        baseReticleScale = this.focusReticleScale;
+      } else if (e.touches && e.touches[0]) {
         startX = e.touches[0].clientX;
         startY = e.touches[0].clientY;
       }
     }, { passive: true });
 
     this.container.addEventListener('touchmove', (e) => {
-      if (e.touches && e.touches[0]) {
+      if (e.touches && e.touches.length === 2 && initialPinchDistance) {
+        const dx = e.touches[0].clientX - e.touches[1].clientX;
+        const dy = e.touches[0].clientY - e.touches[1].clientY;
+        const currentDist = Math.hypot(dx, dy);
+        const factor = currentDist / initialPinchDistance;
+        this.focusReticleScale = Math.max(0.65, Math.min(1.75, baseReticleScale * factor));
+      } else if (e.touches && e.touches[0]) {
         const dx = Math.abs(e.touches[0].clientX - startX);
         const dy = Math.abs(e.touches[0].clientY - startY);
         if (dx > 8 || dy > 8) touchMoved = true;
@@ -108,6 +140,9 @@ export class ArCameraLens {
     }, { passive: true });
 
     this.container.addEventListener('touchend', (e) => {
+      if (e.touches && e.touches.length < 2) {
+        initialPinchDistance = null;
+      }
       if (!touchMoved && e.changedTouches && e.changedTouches[0]) {
         const t = e.changedTouches[0];
         handleTap(t.clientX, t.clientY, e.target);
@@ -669,12 +704,85 @@ export class ArCameraLens {
       }
     }
 
-    // --- STEP 3: Temporal Smoothing (IoU Tracker & EMA) ---
-    const smoothedList = this.applyTemporalSmoothing(rawDetectedList);
+    // --- STEP 3: Hierarchical Macro Scene & CEFR Filtering ---
+    if (rawDetectedList.length > 0) {
+      this.currentMacroScene = QuestEngine.detectMacroScene(rawDetectedList.map(item => item.vocab?.wordEn || item.label));
+    }
+
+    let filteredDetectedList = rawDetectedList;
+    if (this.cefrFilter && this.cefrFilter !== 'ALL') {
+      const matchLevel = (lvl) => {
+        if (!lvl) return false;
+        if (this.cefrFilter === 'A1-B1') return /A1|A2|B1/i.test(lvl);
+        if (this.cefrFilter === 'B2') return /B2/i.test(lvl);
+        if (this.cefrFilter === 'C1-C2') return /C1|C2/i.test(lvl);
+        return true;
+      };
+      const matching = rawDetectedList.filter(item => matchLevel(item.vocab?.cefrLevel));
+      if (matching.length > 0) {
+        filteredDetectedList = matching;
+      }
+    }
+
+    // --- STEP 4: Temporal Smoothing (IoU Tracker & EMA) ---
+    const smoothedList = this.applyTemporalSmoothing(filteredDetectedList);
 
     if (smoothedList.length > 0) {
       this.lastSeenObjectTime = Date.now();
       this.detectedBoxes = smoothedList;
+      const primaryVocab = smoothedList[0].vocab;
+      const topWord = primaryVocab ? primaryVocab.wordEn : smoothedList[0].label;
+
+      // Cyberpunk Sound FX on acquiring a new target lock
+      if (topWord !== this.lastLockedLabel) {
+        this.lastLockedLabel = topWord;
+        SoundFxEngine.playTargetLock();
+      }
+
+      // Gamification: Scavenger Hunt Quests
+      if (primaryVocab) {
+        const questMatch = QuestEngine.checkQuestMatch(primaryVocab.key);
+        if (questMatch && questMatch.success) {
+          const questText = document.getElementById('quest-text-desc');
+          const questBadge = document.getElementById('quest-exp-badge');
+          if (questText && questMatch.nextQuest) {
+            questText.innerHTML = `🎉 <b>Hoàn thành!</b> +${questMatch.pointsAwarded} XP | Tiếp: ${questMatch.nextQuest.title}`;
+            setTimeout(() => {
+              if (questText && questMatch.nextQuest) {
+                questText.textContent = `Thử thách: ${questMatch.nextQuest.desc}`;
+              }
+            }, 3500);
+          }
+          if (questBadge) questBadge.textContent = `${questMatch.newExp} XP`;
+        }
+      }
+
+      // Auto-Crop Contextual Real-World Thumbnail for Flashcards
+      if (topWord === this.stableTargetWord) {
+        if (!this.thumbnailCapturedForWord && (Date.now() - this.stableTargetStart > 900)) {
+          this.thumbnailCapturedForWord = true;
+          this.captureObjectThumbnail(smoothedList[0]);
+        }
+      } else {
+        this.stableTargetWord = topWord;
+        this.stableTargetStart = Date.now();
+        this.thumbnailCapturedForWord = false;
+      }
+
+      // Spatial AR Persistent Sticky Tags Memory
+      for (const box of smoothedList) {
+        if (box.vocab) {
+          this.stickyTags.set(box.vocab.key, {
+            x: box.x,
+            y: box.y,
+            w: box.w,
+            h: box.h,
+            vocab: box.vocab,
+            lastSeen: Date.now()
+          });
+        }
+      }
+
       if (statusBadge) {
         statusBadge.innerHTML = `<span class="hud-dot" style="background:#10B981"></span> Live Vision: <b>${smoothedList[0].label}</b> (${smoothedList[0].vocab.meaningVi})`;
       }
@@ -706,6 +814,38 @@ export class ArCameraLens {
           this.onObjectDetected([]);
         }
       }
+    }
+  }
+
+  /**
+   * Auto-Crop Contextual Real-World Thumbnail for Spaced Repetition Flashcards
+   */
+  captureObjectThumbnail(box) {
+    if (!this.video || this.video.readyState < 2 || !box || !box.vocab) return;
+    try {
+      const thumbCanvas = document.createElement('canvas');
+      thumbCanvas.width = 160;
+      thumbCanvas.height = 120;
+      const tCtx = thumbCanvas.getContext('2d');
+
+      const vw = this.video.videoWidth || 640;
+      const vh = this.video.videoHeight || 480;
+      const cw = this.canvas.width;
+      const ch = this.canvas.height;
+      const S = Math.max(cw / vw, ch / vh);
+      const dx = (cw - vw * S) / 2;
+      const dy = (ch - vh * S) / 2;
+
+      const sx = Math.max(0, (box.x - dx) / S);
+      const sy = Math.max(0, (box.y - dy) / S);
+      const sw = Math.min(vw - sx, Math.max(40, box.w / S));
+      const sh = Math.min(vh - sy, Math.max(40, box.h / S));
+
+      tCtx.drawImage(this.video, sx, sy, sw, sh, 0, 0, 160, 120);
+      const dataUrl = thumbCanvas.toDataURL('image/jpeg', 0.82);
+      StorageManager.addScannedWord(box.vocab.key, dataUrl);
+    } catch (e) {
+      console.warn("Auto-crop thumbnail capture note:", e);
     }
   }
 
@@ -839,24 +979,43 @@ export class ArCameraLens {
 
   /**
    * Draw Rich High-Tech AR Overlays:
-   * 1. If no object detected: Sci-Fi AR Target Reticle with vertical scanning laser & guide pill.
-   * 2. If object detected: Neon bounding boxes, Reticle brackets, English Word, IPA, Vietnamese Meaning,
-   *    Full C1/C2 Example Sentence, and Vietnamese Sentence Translation!
+   * 1. If no object detected: Sci-Fi AR Target Reticle with pinch-to-focus scaling & vertical laser.
+   * 2. If object detected: Multi-target radar mesh, Spatial sticky tags, Neon bounding boxes,
+   *    Reticle brackets, English Word, IPA, Vietnamese Meaning, Collocations, C1/C2 Sentence & Translation!
    */
   drawOverlay() {
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
     const now = performance.now();
     const pulse = Math.sin(now / 180) * 0.15 + 0.85;
+    const cw = this.canvas.width;
+    const ch = this.canvas.height;
+
+    // Macro Scene Context Badge (Top-Left)
+    if (this.currentMacroScene) {
+      this.ctx.save();
+      const sceneText = `${this.currentMacroScene.icon} ${this.currentMacroScene.sceneVi}`;
+      this.ctx.font = 'bold 11px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto';
+      const scW = this.ctx.measureText(sceneText).width + 24;
+      this.ctx.fillStyle = 'rgba(15, 23, 42, 0.85)';
+      this.ctx.strokeStyle = 'rgba(56, 189, 248, 0.4)';
+      this.ctx.lineWidth = 1;
+      this.roundRect(14, 68, scW, 26, 13, true, true);
+      this.ctx.fillStyle = '#38BDF8';
+      this.ctx.fillText(sceneText, 24, 85);
+      this.ctx.restore();
+    }
 
     // CASE 1: NO OBJECT CURRENTLY DETECTED -> DRAW SCIFI AR SCANNING RETICLE
     if (this.detectedBoxes.length === 0) {
-      const cw = this.canvas.width;
-      const ch = this.canvas.height;
-      const boxW = Math.min(cw * 0.72, 280);
-      const boxH = Math.min(ch * 0.38, 200);
-      const x = (cw - boxW) / 2;
-      const y = (ch - boxH) / 2 - 20;
+      const baseW = Math.min(cw * 0.72, 280);
+      const baseH = Math.min(ch * 0.38, 200);
+      const boxW = Math.max(140, Math.min(cw - 40, baseW * this.focusReticleScale));
+      const boxH = Math.max(100, Math.min(ch - 140, baseH * this.focusReticleScale));
+      const cx = this.focusCenter ? this.focusCenter.x : cw / 2;
+      const cy = this.focusCenter ? this.focusCenter.y : ch / 2 - 20;
+      const x = Math.max(10, Math.min(cx - boxW / 2, cw - boxW - 10));
+      const y = Math.max(80, Math.min(cy - boxH / 2, ch - boxH - 60));
 
       this.ctx.save();
 
@@ -944,6 +1103,71 @@ export class ArCameraLens {
       return;
     }
 
+    // MULTI-TARGET RADAR MESH CONNECTING LINES (Ý tưởng 12)
+    if (this.detectedBoxes.length >= 2) {
+      this.ctx.save();
+      this.ctx.setLineDash([5, 5]);
+      this.ctx.strokeStyle = `rgba(56, 189, 248, ${0.75 * pulse})`;
+      this.ctx.lineWidth = 1.5;
+
+      for (let i = 0; i < this.detectedBoxes.length; i++) {
+        for (let j = i + 1; j < this.detectedBoxes.length; j++) {
+          const b1 = this.detectedBoxes[i];
+          const b2 = this.detectedBoxes[j];
+          const c1x = b1.x + b1.w / 2;
+          const c1y = b1.y + b1.h / 2;
+          const c2x = b2.x + b2.w / 2;
+          const c2y = b2.y + b2.h / 2;
+
+          this.ctx.beginPath();
+          this.ctx.moveTo(c1x, c1y);
+          this.ctx.lineTo(c2x, c2y);
+          this.ctx.stroke();
+
+          const mx = (c1x + c2x) / 2;
+          const my = (c1y + c2y) / 2;
+          const dist = Math.round(Math.hypot(c2x - c1x, c2y - c1y));
+          this.ctx.save();
+          this.ctx.setLineDash([]);
+          this.ctx.fillStyle = 'rgba(15, 23, 42, 0.88)';
+          this.ctx.strokeStyle = 'rgba(56, 189, 248, 0.6)';
+          this.ctx.lineWidth = 1;
+          this.roundRect(mx - 38, my - 10, 76, 20, 6, true, true);
+          this.ctx.fillStyle = '#38BDF8';
+          this.ctx.font = 'bold 9px monospace';
+          this.ctx.textAlign = 'center';
+          this.ctx.fillText(`RADAR: ${dist}px`, mx, my + 4);
+          this.ctx.restore();
+        }
+      }
+      this.ctx.restore();
+    }
+
+    // SPATIAL AR STICKY TAGS (Ý tưởng 11: Persistent Spatial Memory Pins)
+    const activeKeys = new Set(this.detectedBoxes.map(b => b.vocab?.key).filter(Boolean));
+    for (const [key, item] of this.stickyTags.entries()) {
+      if (!activeKeys.has(key)) {
+        const elapsed = now - item.lastSeen;
+        if (elapsed < 2800) {
+          const tagAlpha = (1.0 - elapsed / 2800) * 0.85;
+          this.ctx.save();
+          this.ctx.fillStyle = `rgba(15, 23, 42, ${tagAlpha})`;
+          this.ctx.strokeStyle = `rgba(56, 189, 248, ${tagAlpha * 0.8})`;
+          this.ctx.lineWidth = 1;
+          const anchorX = Math.max(10, Math.min(item.x, cw - 140));
+          const anchorY = Math.max(70, Math.min(item.y - 28, ch - 35));
+          this.roundRect(anchorX, anchorY, 130, 24, 6, true, true);
+
+          this.ctx.fillStyle = `rgba(255, 255, 255, ${tagAlpha})`;
+          this.ctx.font = 'bold 11px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto';
+          this.ctx.fillText(`📌 ${item.vocab.wordEn}`, anchorX + 6, anchorY + 16);
+          this.ctx.restore();
+        } else {
+          this.stickyTags.delete(key);
+        }
+      }
+    }
+
     // CASE 2: REAL OBJECT DETECTED -> RENDER NEON BOUNDING BOX & AR HUD CARDS
     for (let boxIdx = 0; boxIdx < this.detectedBoxes.length; boxIdx++) {
       const box = this.detectedBoxes[boxIdx];
@@ -991,10 +1215,10 @@ export class ArCameraLens {
       // 2. AR CARDS
       if (vocab) {
         if (boxIdx === 0) {
-          // PRIMARY OBJECT: Full C1/C2 Encyclopedic HUD Card
-          const cardW = Math.min(this.canvas.width - 24, Math.max(300, w + 40));
-          const cardH = 115;
-          const cardX = Math.max(12, Math.min(x - (cardW - w) / 2, this.canvas.width - cardW - 12));
+          // PRIMARY OBJECT: Full C1/C2 Encyclopedic HUD Card with Collocations
+          const cardW = Math.min(cw - 24, Math.max(300, w + 40));
+          const cardH = 138;
+          const cardX = Math.max(12, Math.min(x - (cardW - w) / 2, cw - cardW - 12));
           
           let cardY = y - cardH - 12;
           if (cardY < 65) {
@@ -1010,52 +1234,59 @@ export class ArCameraLens {
           // Row 1: Word English & IPA Phonetic
           this.ctx.fillStyle = '#FFFFFF';
           this.ctx.font = 'bold 16px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto';
-          this.ctx.fillText(vocab.wordEn, cardX + 12, cardY + 24);
+          this.ctx.fillText(vocab.wordEn, cardX + 12, cardY + 22);
 
           this.ctx.fillStyle = '#38BDF8';
           this.ctx.font = '12px ui-monospace, SFMono-Regular, monospace';
           const wordW = this.ctx.measureText(vocab.wordEn).width;
-          this.ctx.fillText(vocab.ipa, cardX + 18 + wordW, cardY + 24);
+          this.ctx.fillText(vocab.ipa, cardX + 18 + wordW, cardY + 22);
 
           // CEFR Level Badge (e.g. C1 / B2)
           const badgeText = vocab.cefrLevel || 'B2-C1';
           this.ctx.fillStyle = 'rgba(99, 102, 241, 0.95)';
-          this.roundRect(cardX + cardW - 58, cardY + 10, 48, 18, 6, true, false);
+          this.roundRect(cardX + cardW - 58, cardY + 9, 48, 18, 6, true, false);
           this.ctx.fillStyle = '#FFFFFF';
           this.ctx.font = 'bold 10px sans-serif';
-          this.ctx.fillText(badgeText, cardX + cardW - 52, cardY + 23);
+          this.ctx.fillText(badgeText, cardX + cardW - 52, cardY + 22);
 
           // Row 2: Vietnamese Definition
           this.ctx.fillStyle = '#FBBF24'; // Amber highlight
           this.ctx.font = '600 13px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto';
-          this.ctx.fillText(`🇻🇳 ${vocab.meaningVi}`, cardX + 12, cardY + 46);
+          this.ctx.fillText(`🇻🇳 ${vocab.meaningVi}`, cardX + 12, cardY + 42);
 
-          // Row 3: Full English Example Sentence (C1/C2 Advanced)
+          // Row 3: Action Collocation (Ý tưởng 17)
+          this.ctx.fillStyle = '#38BDF8';
+          this.ctx.font = '600 12px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto';
+          const coloc = vocab.collocationsEn ? `⚡ Cụm từ: "${vocab.collocationsEn}"` : '';
+          const truncatedColoc = this.truncateText(this.ctx, coloc, cardW - 24);
+          this.ctx.fillText(truncatedColoc, cardX + 12, cardY + 62);
+
+          // Row 4: Full English Example Sentence (C1/C2 Advanced)
           this.ctx.fillStyle = '#E2E8F0';
           this.ctx.font = 'italic 12px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto';
           const sampleSentence = vocab.exampleSentenceEn || vocab.c1c2ExpressionEn || '';
           const truncatedEn = this.truncateText(this.ctx, `📖 "${sampleSentence}"`, cardW - 24);
-          this.ctx.fillText(truncatedEn, cardX + 12, cardY + 68);
+          this.ctx.fillText(truncatedEn, cardX + 12, cardY + 82);
 
-          // Row 4: Vietnamese Sentence Translation
+          // Row 5: Vietnamese Sentence Translation
           this.ctx.fillStyle = '#94A3B8';
           this.ctx.font = '11px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto';
           const transSentence = vocab.exampleSentenceVi || vocab.c1c2ExpressionVi || '';
           const truncatedVi = this.truncateText(this.ctx, `👉 ${transSentence}`, cardW - 24);
-          this.ctx.fillText(truncatedVi, cardX + 12, cardY + 88);
+          this.ctx.fillText(truncatedVi, cardX + 12, cardY + 102);
 
-          // Row 5: Hint pill
+          // Row 6: Interactive Action Pill
           this.ctx.fillStyle = 'rgba(56, 189, 248, 0.2)';
-          this.roundRect(cardX + 12, cardY + 95, cardW - 24, 14, 4, true, false);
+          this.roundRect(cardX + 12, cardY + 112, cardW - 24, 18, 5, true, false);
           this.ctx.fillStyle = '#38BDF8';
           this.ctx.font = 'bold 9px sans-serif';
-          this.ctx.fillText("⚡ CHẠM VÀO THẺ ĐỂ MỞ TOÀN BỘ BÁCH KHOA TỪ ĐIỂN & NGHE PHÁT ÂM", cardX + 20, cardY + 105);
+          this.ctx.fillText("⚡ CHẠM VÀO ĐÂY ĐỂ MỞ TOÀN BỘ BÁCH KHOA TỪ ĐIỂN, ÂM THANH & FLASHCARD", cardX + 18, cardY + 124);
 
         } else {
           // SECONDARY OBJECT: Compact Cyber Badge (Multi-Object Scanning)
           const cardW = Math.min(220, Math.max(160, w + 20));
           const cardH = 46;
-          const cardX = Math.max(10, Math.min(x, this.canvas.width - cardW - 10));
+          const cardX = Math.max(10, Math.min(x, cw - cardW - 10));
           let cardY = y - cardH - 8;
           if (cardY < 65) cardY = y + h + 8;
 
