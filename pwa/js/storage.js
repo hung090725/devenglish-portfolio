@@ -49,19 +49,26 @@ export class StorageManager {
     }
   }
 
-  static addScannedWord(wordKey) {
+  static addScannedWord(wordKey, thumbnail = null) {
     const list = this.getScannedHistory();
     const now = new Date().toISOString();
     const existingIndex = list.findIndex(item => item.key === wordKey);
     if (existingIndex >= 0) {
       list[existingIndex].count += 1;
       list[existingIndex].lastSeen = now;
+      if (thumbnail) list[existingIndex].thumbnail = thumbnail;
     } else {
-      list.unshift({ key: wordKey, count: 1, firstSeen: now, lastSeen: now });
+      list.unshift({ key: wordKey, count: 1, firstSeen: now, lastSeen: now, thumbnail });
     }
     // keep top 50
     if (list.length > 50) list.pop();
     localStorage.setItem(STORAGE_KEYS.SCANNED_HISTORY, JSON.stringify(list));
+  }
+
+  static getWordThumbnail(wordKey) {
+    const list = this.getScannedHistory();
+    const item = list.find(i => i.key === wordKey);
+    return item ? item.thumbnail : null;
   }
 
   static getLearnedWords() {

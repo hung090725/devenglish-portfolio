@@ -1,0 +1,30 @@
+[
+    {
+        "patchId": "PATCH-001",
+        "type": "Vocabulary",
+        "level": "C1",
+        "sourceId": "Vocab-101-serendipity",
+        "fieldName": "level",
+        "oldValue": "A1",
+        "newValue": "C1",
+        "reason": "Word serendipity is too advanced for A1",
+        "confidence": "HIGH",
+        "status": "VALIDATED",
+        "reviewer": "internal-rule-based",
+        "createdAt": 1718330000000
+    },
+    {
+        "patchId": "PATCH-002",
+        "type": "Quiz",
+        "level": "A0",
+        "sourceId": "Quiz-A0-5",
+        "fieldName": "question",
+        "oldValue": "Which of the following...",
+        "newValue": "What is...",
+        "reason": "Simplifying A0 question text",
+        "confidence": "HIGH",
+        "status": "VALIDATED",
+        "reviewer": "internal-rule-based",
+        "createdAt": 1718330000000
+    }
+]

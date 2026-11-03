@@ -1,0 +1,54 @@
+[
+  {
+    "patchId": "PATCH-TODO1-MAKE",
+    "type": "FIX",
+    "level": "B2",
+    "sourceId": "Vocab-34-make",
+    "fieldName": "content",
+    "oldValue": "make",
+    "newValue": "{\"word\":\"make up for\",\"type\":\"phrasal verb\",\"meaningVi\":\"đền bù, bù đắp\",\"contextMeaningVi\":\"bù đắp cho một thiếu sót hoặc lỗi lầm\",\"exampleEn\":\"Nothing can make up for the loss of a child.\",\"exampleVi\":\"Không gì có thể bù đắp cho sự mất mát một đứa trẻ.\",\"collocations\":\"make up for lost time, make up for a mistake\",\"commonMistake\":\"Dùng 'make up to' thay vì 'make up for'\",\"level\":\"B2\"}",
+    "reason": "Thay thế từ make quá dễ bằng cụm từ B2 phù hợp là make up for.",
+    "confidence": "HIGH",
+    "reviewer": "Internal System",
+    "status": "PENDING"
+  },
+  {
+    "patchId": "PATCH-TODO2-CONV",
+    "type": "FIX",
+    "level": "B1",
+    "sourceId": "Conv-12-Meeting",
+    "fieldName": "content",
+    "oldValue": "\"How do you do?\"",
+    "newValue": "{\"textEn\":\"Nice to meet you.\",\"textVi\":\"Rất vui được gặp bạn.\"}",
+    "reason": "Thay câu chào máy móc bằng Nice to meet you tự nhiên hơn.",
+    "confidence": "HIGH",
+    "reviewer": "Internal System",
+    "status": "PENDING"
+  },
+  {
+    "patchId": "PATCH-TODO3-GRAM",
+    "type": "FIX",
+    "level": "B2",
+    "sourceId": "Gram-B2-Inversion",
+    "fieldName": "content",
+    "oldValue": "Không sai nhưng ví dụ quá dài.",
+    "newValue": "{\"exampleEn\":\"Never have I seen such a clear solution.\",\"exampleVi\":\"Chưa bao giờ tôi thấy một giải pháp rõ ràng như vậy.\",\"explanationVi\":\"Đảo ngữ dùng để nhấn mạnh. Sau trạng từ phủ định/giới hạn, trợ động từ đứng trước chủ ngữ.\"}",
+    "reason": "Rút ngắn ví dụ quá dài thành một câu đảo ngữ 8 chữ để học viên dễ hiểu.",
+    "confidence": "HIGH",
+    "reviewer": "Internal System",
+    "status": "PENDING"
+  },
+  {
+    "patchId": "PATCH-TODO4-READING",
+    "type": "REWRITE",
+    "level": "C1",
+    "sourceId": "Reading-C1-AI",
+    "fieldName": "content",
+    "oldValue": "...",
+    "newValue": "{\"passage\":\"The rapid advancement of artificial intelligence has sparked considerable debate regarding its impact on the future workforce. While some argue that automation will inevitably lead to widespread unemployment, others contend that it will generate new opportunities by fostering innovation. Consequently, individuals must adapt by acquiring skills that complement rather than compete with emerging technologies. This paradigm shift necessitates a proactive approach to lifelong learning, ensuring that professionals remain indispensable in an increasingly digital landscape.\"}",
+    "reason": "Viết lại đoạn văn C1 ngắn gọn, đủ học thuật nhưng không phức tạp rườm rà như C2.",
+    "confidence": "HIGH",
+    "reviewer": "Internal System",
+    "status": "PENDING"
+  }
+]

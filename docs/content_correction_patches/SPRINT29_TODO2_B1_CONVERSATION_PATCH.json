@@ -1,0 +1,13 @@
+{
+  "patchId": "PATCH-TODO2-CONV",
+  "type": "FIX",
+  "level": "B1",
+  "sourceId": "Conv-12-Meeting",
+  "fieldName": "content",
+  "oldValue": "\"How do you do?\"",
+  "newValue": "{\"textEn\":\"Nice to meet you.\",\"textVi\":\"Rất vui được gặp bạn.\"}",
+  "reason": "Thay câu chào máy móc bằng Nice to meet you tự nhiên hơn.",
+  "confidence": "HIGH",
+  "reviewer": "Internal System",
+  "status": "PENDING"
+}

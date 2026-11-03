@@ -12,7 +12,7 @@ Hệ thống **DevEnglish AI** đã được xây dựng thành phiên bản **P
 Nếu máy tính của bạn và điện thoại iPhone đang kết nối vào **cùng một mạng Wi-Fi**:
 
 ### Bước 1: Khởi động máy chủ trên máy tính
-- Nhấp đúp chuột vào file: [`start_pwa.bat`](start_pwa.bat)
+- Nhấp đúp chuột vào file: [`start_pwa.bat`](file:///c:/Users/Admin/Documents/hoctienganh/tienganhAi/start_pwa.bat)
 - Hoặc mở terminal và chạy:
   ```bash
   python pwa/serve.py
@@ -55,7 +55,7 @@ npx cloudflared tunnel --url http://localhost:8080
 Cloudflare sẽ cung cấp cho bạn một đường link HTTPS an toàn (ví dụ: `https://xxx.trycloudflare.com`). Bạn chỉ cần mở link này trên Safari iPhone là Camera quét từ vựng và micro hoạt động tức thì!
 
 #### Phương án B: Triển khai lên Vercel (Khuyên dùng - 1 Click)
-1. Thư mục [`pwa`](pwa) đã có sẵn file cấu hình [`vercel.json`](pwa/vercel.json).
+1. Thư mục [`pwa`](file:///c:/Users/Admin/Documents/hoctienganh/tienganhAi/pwa) đã có sẵn file cấu hình [`vercel.json`](file:///c:/Users/Admin/Documents/hoctienganh/tienganhAi/pwa/vercel.json).
 2. Bạn có thể đẩy lên Vercel hoặc Netlify, bạn sẽ có một tên miền riêng `https://devenglish.vercel.app` vĩnh viễn, truy cập mọi lúc mọi nơi trên mọi chiếc iPhone.
 
 #### Phương án C: Triển khai lên GitHub Pages

@@ -1,0 +1,13 @@
+{
+  "patchId": "PATCH-TODO1-MAKE",
+  "type": "FIX",
+  "level": "B2",
+  "sourceId": "Vocab-34-make",
+  "fieldName": "content",
+  "oldValue": "make",
+  "newValue": "{\"word\":\"make up for\",\"type\":\"phrasal verb\",\"meaningVi\":\"đền bù, bù đắp\",\"contextMeaningVi\":\"bù đắp cho một thiếu sót hoặc lỗi lầm\",\"exampleEn\":\"Nothing can make up for the loss of a child.\",\"exampleVi\":\"Không gì có thể bù đắp cho sự mất mát một đứa trẻ.\",\"collocations\":\"make up for lost time, make up for a mistake\",\"commonMistake\":\"Dùng 'make up to' thay vì 'make up for'\",\"level\":\"B2\"}",
+  "reason": "Thay thế từ make quá dễ bằng cụm từ B2 phù hợp là make up for.",
+  "confidence": "HIGH",
+  "reviewer": "Internal System",
+  "status": "PENDING"
+}

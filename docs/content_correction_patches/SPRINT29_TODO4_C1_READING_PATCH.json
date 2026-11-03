@@ -1,0 +1,13 @@
+{
+  "patchId": "PATCH-TODO4-READING",
+  "type": "REWRITE",
+  "level": "C1",
+  "sourceId": "Reading-C1-AI",
+  "fieldName": "content",
+  "oldValue": "...",
+  "newValue": "{\"passage\":\"The rapid advancement of artificial intelligence has sparked considerable debate regarding its impact on the future workforce. While some argue that automation will inevitably lead to widespread unemployment, others contend that it will generate new opportunities by fostering innovation. Consequently, individuals must adapt by acquiring skills that complement rather than compete with emerging technologies. This paradigm shift necessitates a proactive approach to lifelong learning, ensuring that professionals remain indispensable in an increasingly digital landscape.\"}",
+  "reason": "Viết lại đoạn văn C1 ngắn gọn, đủ học thuật nhưng không phức tạp rườm rà như C2.",
+  "confidence": "HIGH",
+  "reviewer": "Internal System",
+  "status": "PENDING"
+}
