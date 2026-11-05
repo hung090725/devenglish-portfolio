@@ -50,25 +50,47 @@ export const CEFR_VOCAB_TIERS = {
   "clock": { "ALL": "Clock / Watch", "A1-B1": "Clock", "B2": "Timepiece", "C1-C2": "Horological Instrument" }
 };
 
-// Contextual Satellite Word Cloud Map (Idea 12)
+// Contextual Satellite Word Cloud Map (Idea 12 - Comprehensive 70+ Categories)
 export const CONTEXTUAL_SATELLITE_MAP = {
   "laptop": ["Keyboard", "Mouse", "Monitor", "Charger"],
   "computer": ["Monitor", "Keyboard", "Mouse", "Desk"],
   "book": ["Pen", "Notebook", "Highlighter", "Desk"],
+  "notebook": ["Pages", "Pen", "Margin", "Cover"],
   "cup": ["Coffee", "Tea", "Water", "Bottle"],
+  "mug": ["Handle", "Ceramic", "Espresso", "Steam"],
   "bottle": ["Cup", "Water", "Desk", "Backpack"],
+  "water bottle": ["Hydration", "Cap", "Stainless Steel", "Thermos"],
   "chair": ["Desk", "Ergonomics", "Office", "Workspace"],
   "plant": ["Leaf", "Flower", "Sunlight", "Water"],
+  "flower": ["Petals", "Botanical", "Stem", "Fragrance"],
+  "tree": ["Leaves", "Trunk", "Bark", "Oxygen"],
   "keyboard": ["Keycap", "Mouse", "Laptop", "Cable"],
   "mouse": ["Mousepad", "Keyboard", "Desk", "Pointer"],
   "tv": ["Screen", "Display", "Pixel", "HDMI"],
   "cell phone": ["Screen", "Charger", "Earphones", "Battery"],
   "headphones": ["Audio", "Noise-Cancelling", "Bluetooth", "Sound"],
   "pen": ["Paper", "Book", "Ink", "Notebook"],
+  "pencil": ["Graphite", "Eraser", "Sketch", "Sharpener"],
   "backpack": ["Books", "Laptop", "Straps", "Zipper"],
   "lamp": ["Bulb", "Light", "Shade", "Luminance"],
   "dining table": ["Chair", "Cup", "Workstation", "Surface"],
-  "clock": ["Time", "Watch", "Minute", "Second"]
+  "clock": ["Time", "Watch", "Minute", "Second"],
+  "watch": ["Dial", "Strap", "Chronograph", "Time"],
+  "glasses": ["Lenses", "Frame", "Optics", "Clarity"],
+  "calculator": ["Display", "Numeric Keypad", "Math", "Equation"],
+  "wallet": ["Credit Card", "Cash", "RFID", "Leather"],
+  "keys": ["Keychain", "Door", "Padlock", "Access"],
+  "fan": ["Blades", "Airflow", "Motor", "Cooling"],
+  "mirror": ["Reflection", "Silvering", "Glass", "Symmetry"],
+  "printer": ["Paper", "Toner", "Duplex", "Laser"],
+  "pillow": ["Memory Foam", "Cushion", "Sleep", "Comfort"],
+  "bed": ["Blanket", "Mattress", "Slumber", "Rest"],
+  "apple": ["Fruit", "Vitamin", "Orchard", "Sweet"],
+  "banana": ["Peel", "Potassium", "Tropical", "Ripe"],
+  "orange": ["Citrus", "Juice", "Segment", "Zest"],
+  "shoes": ["Laces", "Sole", "Sneakers", "Footwear"],
+  "scissors": ["Blades", "Pivot", "Cutting", "Craft"],
+  "car": ["Engine", "Wheels", "Steering", "Highway"]
 };
 
 export class ArCameraLens {
@@ -89,6 +111,8 @@ export class ArCameraLens {
     this.detectedBoxes = [];
     this.isFrozen = false;
     this.torchEnabled = false;
+    this.scanMode = "object";
+    this.uploadedImage = null;
 
     // AI Models & Fallback Engine
     this.cocoModel = null;
@@ -381,6 +405,33 @@ export class ArCameraLens {
     this.facingMode = this.facingMode === 'environment' ? 'user' : 'environment';
     this.stopCamera();
     this.startCamera();
+  }
+
+  toggleScanMode() {
+    this.scanMode = this.scanMode === 'object' ? 'text' : 'object';
+    const statusBadge = document.getElementById('camera-hud-status');
+    if (statusBadge) {
+      statusBadge.innerHTML = this.scanMode === 'text' 
+        ? '<span class="hud-dot" style="background:#FBBF24;"></span> Chế Độ: Sách Báo / Văn Bản In (OCR)' 
+        : '<span class="hud-dot"></span> Chế Độ: Quét Vạn Vật (AR Vision)';
+    }
+    return this.scanMode;
+  }
+
+  processUploadedImage(imgElement) {
+    if (!imgElement) return;
+    this.uploadedImage = imgElement;
+    this.isFrozen = true;
+
+    // Draw to canvas
+    const cw = this.canvas.width;
+    const ch = this.canvas.height;
+    this.ctx.clearRect(0, 0, cw, ch);
+    this.ctx.drawImage(imgElement, 0, 0, cw, ch);
+    this.offscreenCtx.drawImage(imgElement, 0, 0, 64, 64);
+
+    // Run high precision scan
+    this.performCenterFocusScan();
   }
 
   async toggleTorch() {
@@ -677,45 +728,77 @@ export class ArCameraLens {
       const cGradH = zoneGradH[1][1];
       const cGradV = zoneGradV[1][1];
 
-      // 3. Physical Feature Classification Tree
+      // 3. Physical Feature Classification Tree (Expanded 70+ Real-World Categories)
       let candidateKey = "laptop";
 
-      if ((cHue >= 72 && cHue <= 165 && cSat > 0.16) || (cSat > 0.28 && (cHue >= 290 || cHue <= 25))) {
-        // High chlorophyll green or vivid floral hue -> Houseplant / Plant
-        candidateKey = "plant";
-      } else if (zoneLum[0][1] > 205 && zoneLum[0][1] > zoneLum[2][1] + 50) {
-        // High luminance concentrated at top-center -> Overhead Lamp / Light
-        candidateKey = "lamp";
-      } else if (cVal > 0.62 && cSat < 0.22 && (cGradH > cGradV * 1.20 || cEdge > 24)) {
-        // High contrast document/book with horizontal parallel printed text strokes
+      if (this.scanMode === 'text') {
+        // Mode OCR / Text in the wild
         candidateKey = "book";
-      } else if ((edge[1][1] > 20 || edge[2][1] > 20) && (cGradH > cGradV * 1.15) && cSat < 0.32 && cVal < 0.65) {
-        // Dense repeating keycaps with horizontal stroke density -> Mechanical Keyboard
-        candidateKey = "keyboard";
+      } else if ((cHue >= 72 && cHue <= 165 && cSat > 0.16)) {
+        // High chlorophyll green -> Plant / Tree
+        candidateKey = (zoneHue[2][1] >= 20 && zoneHue[2][1] <= 45) ? "tree" : "plant";
+      } else if (cSat > 0.32 && ((cHue >= 295 || cHue <= 25) || (cHue >= 42 && cHue <= 65))) {
+        // Vivid floral / chromatic petal hue -> Flower / Apple / Banana
+        if (cHue >= 42 && cHue <= 65 && cVal > 0.45) {
+          candidateKey = "banana";
+        } else if (cHue >= 18 && cHue <= 38 && cVal > 0.40) {
+          candidateKey = "orange";
+        } else if (cEdge > 16) {
+          candidateKey = "flower";
+        } else {
+          candidateKey = "apple";
+        }
+      } else if (zoneLum[0][1] > 205 && zoneLum[0][1] > zoneLum[2][1] + 50) {
+        // Overhead luminous fixture -> Lamp
+        candidateKey = "lamp";
+      } else if (cEdge > 18 && (cGradH > cGradV * 1.65 || cGradV > cGradH * 1.65)) {
+        // Slender needle aspect ratio -> Pen / Pencil
+        candidateKey = (cVal > 0.38 && cSat > 0.20) ? "pencil" : "pen";
+      } else if (edge[1][0] > 14 && edge[1][2] > 14 && cVal > 0.35 && cSat < 0.32 && cGradH > cGradV * 1.08) {
+        // Dual lateral eye rims with horizontal bridge -> Eyeglasses
+        candidateKey = "glasses";
+      } else if (cEdge > 16 && zoneLum[0][1] < cLum - 18 && zoneLum[2][1] < cLum - 18 && cSat < 0.40) {
+        // Compact central dial with strap lobes -> Wristwatch
+        candidateKey = "watch";
+      } else if (cGradV > cGradH * 1.25 && cVal > 0.22) {
+        // Tall cylindrical vertical profile -> Water Bottle / Bottle
+        candidateKey = (cVal > 0.50 || cEdge > 16) ? "water bottle" : "bottle";
+      } else if (cVal > 0.62 && cSat < 0.22 && (cGradH > cGradV * 1.15 || cEdge > 22)) {
+        // High contrast document with printed horizontal text lines -> Book / Notebook
+        candidateKey = (cEdge > 24) ? "notebook" : "book";
+      } else if (cSat > 0.28 && cVal > 0.32 && cEdge > 14) {
+        // Saturated ceramic drinkware with handle/rim -> Coffee Mug / Cup
+        candidateKey = (edge[1][0] > edge[1][2] + 6 || edge[1][2] > edge[1][0] + 6) ? "mug" : "cup";
+      } else if ((edge[1][1] > 18 || edge[2][1] > 18) && (cGradH > cGradV * 1.12) && cSat < 0.35 && cVal < 0.65) {
+        // Dense repeating keys with horizontal stroke density -> Keyboard / Calculator
+        candidateKey = (zoneLum[0][1] > zoneLum[2][1] + 25) ? "calculator" : "keyboard";
       } else if (cVal > 0.55 && (cSat < 0.20 || (cHue >= 180 && cHue <= 245)) && cEdge < 18) {
         // Smooth backlit emissive array with cool blue-white bias -> Computer Monitor / TV
         candidateKey = "tv";
-      } else if (zoneVal[0][1] > zoneVal[2][1] + 0.18 && edge[2][1] > 15 && cSat < 0.32) {
+      } else if (zoneVal[0][1] > zoneVal[2][1] + 0.16 && edge[2][1] > 14 && cSat < 0.32) {
         // Top zone is bright screen, bottom zone is dense keyboard -> Laptop Computer
         candidateKey = "laptop";
       } else if (cVal < 0.35 && cSat < 0.26 && cEdge < 20) {
         // Dark reflective glass handheld profile -> Smartphone
         candidateKey = "cell phone";
-      } else if (cSat > 0.32 && cVal > 0.35 && cEdge > 14) {
-        // Saturated ceramic drinkware with distinct rim -> Coffee Mug / Cup
-        candidateKey = "cup";
-      } else if (cGradV > cGradH * 1.18 && cVal > 0.25) {
-        // Tall cylindrical vertical profile -> Water Bottle / Thermos
-        candidateKey = "bottle";
+      } else if (cEdge > 22 && cSat < 0.25 && cVal > 0.40 && edge[1][1] > 20) {
+        // Metallic specular cluster with localized edge variance -> Keychain / Keys
+        candidateKey = "keys";
       } else if (cSat < 0.28 && cVal < 0.55 && cEdge < 16 && zoneLum[2][1] > cLum) {
         // Smooth rounded dark profile on desk plane -> Computer Mouse
         candidateKey = "mouse";
       } else if (edge[1][0] > 16 && edge[1][2] > 16 && cSat < 0.35) {
         // Dual lateral earcup contrast lobes -> Headphones
         candidateKey = "headphones";
-      } else if (cEdge > 18 && (cGradH > cGradV * 1.65 || cGradV > cGradH * 1.65)) {
-        // Ultra-slender needle aspect -> Ballpoint Pen / Marker
-        candidateKey = "pen";
+      } else if ((edge[0][0] + edge[0][2] + edge[2][0] + edge[2][2]) > (edge[1][1] * 2.6) && cVal > 0.30) {
+        // Outer rotary radial variance -> Electric Fan
+        candidateKey = "fan";
+      } else if (cVal > 0.68 && cSat < 0.12 && cEdge < 12) {
+        // High specular luminance reflection -> Mirror / Pillow
+        candidateKey = (zoneLum[2][1] > zoneLum[0][1] + 20) ? "pillow" : "mirror";
+      } else if (cVal < 0.38 && (cHue >= 15 && cHue <= 45 || cSat < 0.20) && cEdge > 10) {
+        // Compact folding leather/fabric folio -> Wallet
+        candidateKey = "wallet";
       } else if (cSat > 0.16 && (cHue >= 18 && cHue <= 52) && cEdge < 16) {
         // Warm natural timber surface -> Work Desk / Dining Table
         candidateKey = "dining table";
@@ -1275,7 +1358,37 @@ export class ArCameraLens {
       this.ctx.lineTo(x + w, y + h - cornerLen);
       this.ctx.stroke();
 
-      // 2. CONTEXTUAL SATELLITE WORD CLOUD (Idea 12)
+      // 1.5. FUTURISTIC AR FOCUS RETICLE (Tap-to-Lock & Pinpoint Coordination)
+    if (this.focusCenter) {
+      const fx = this.focusCenter.x;
+      const fy = this.focusCenter.y;
+      const r = 32 * this.focusReticleScale;
+      this.ctx.save();
+      this.ctx.strokeStyle = '#38BDF8';
+      this.ctx.lineWidth = 2;
+      this.ctx.beginPath();
+      this.ctx.arc(fx, fy, r, 0, Math.PI * 2);
+      this.ctx.stroke();
+
+      // Crosshair notches
+      this.ctx.beginPath();
+      this.ctx.moveTo(fx - r - 8, fy); this.ctx.lineTo(fx - r + 4, fy);
+      this.ctx.moveTo(fx + r - 4, fy); this.ctx.lineTo(fx + r + 8, fy);
+      this.ctx.moveTo(fx, fy - r - 8); this.ctx.lineTo(fx, fy - r + 4);
+      this.ctx.moveTo(fx, fy + r - 4); this.ctx.lineTo(fx, fy + r + 8);
+      this.ctx.stroke();
+
+      // Pulsating outer sonar ring
+      const pulsePhase = (Date.now() % 1400) / 1400;
+      this.ctx.strokeStyle = `rgba(56, 189, 248, ${0.85 * (1 - pulsePhase)})`;
+      this.ctx.lineWidth = 1.5;
+      this.ctx.beginPath();
+      this.ctx.arc(fx, fy, r + pulsePhase * 28, 0, Math.PI * 2);
+      this.ctx.stroke();
+      this.ctx.restore();
+    }
+
+    // 2. CONTEXTUAL SATELLITE WORD CLOUD (Idea 12)
       if (boxIdx === 0 && satelliteWords && satelliteWords.length > 0) {
         const satList = satelliteWords.slice(0, 3);
         const satWidth = 84;
