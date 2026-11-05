@@ -57,6 +57,9 @@
           <span>🎯 AR Lens</span>
         </div>
         <div class="hud-buttons">
+          <button id="btn-scan-mode" class="hud-icon-btn" title="Chế Độ: Đồ Vật / Sách Báo (OCR)">🎯</button>
+          <button id="btn-upload-photo" class="hud-icon-btn" title="Tải Ảnh Từ Thư Viện Để Nhận Diện">🖼️</button>
+          <input type="file" id="file-photo-input" accept="image/*" style="display:none;">
           <button id="btn-auto-voice" class="hud-icon-btn" title="Tự Động Phát Âm Khi Quét">🔊</button>
           <button id="btn-torch" class="hud-icon-btn" title="Bật/Tắt Đèn Flash">🔦</button>
           <button id="btn-freeze" class="hud-icon-btn" title="Tạm Dừng Khung Hình">⏸️</button>
@@ -379,10 +382,21 @@
    * =================================================== -->
   <main id="tab-knowledge" class="tab-pane">
     <div class="knowledge-container">
-      <div class="search-box-row">
+      <!-- Scrapbook Mode Switcher -->
+      <div class="segmented-control" style="margin-bottom:12px;">
+        <button class="segment-btn active" id="btn-tab-all-vocab">📚 Toàn Bộ Từ Điển (70+)</button>
+        <button class="segment-btn" id="btn-tab-my-scrapbook">📷 Sổ Tay AR Của Tôi (<span id="scrapbook-badge-count">0</span>)</button>
+      </div>
+
+      <div class="search-box-row" id="knowledge-search-row">
         <input type="text" id="vocab-search-input" class="search-input" placeholder="🔍 Tìm kiếm từ vựng (laptop, book, car, coffee...)">
       </div>
       <div class="vocab-grid" id="vocab-grid"></div>
+      <div id="scrapbook-empty-state" style="display:none; text-align:center; padding:36px 16px; background:rgba(15,23,42,0.6); border-radius:14px; border:1px dashed rgba(56,189,248,0.3); margin-top:12px;">
+        <div style="font-size:36px; margin-bottom:8px;">📷</div>
+        <h4 style="font-size:15px; color:#FFFFFF; margin-bottom:6px;">Chưa có ảnh nào trong Sổ Tay AR</h4>
+        <p style="font-size:12px; color:#94A3B8; line-height:1.5;">Hãy mở Camera AR và soi vào các đồ vật xung quanh bạn. Ứng dụng sẽ tự động chụp ảnh thật và lưu vào cuốn sổ tay từ vựng của riêng bạn!</p>
+      </div>
     </div>
   </main>
 

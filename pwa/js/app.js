@@ -163,6 +163,37 @@ class AppController {
       this.camera.performCenterFocusScan();
     });
 
+    const btnScanMode = document.getElementById('btn-scan-mode');
+    attachFastClick(btnScanMode, () => {
+      if (this.camera) {
+        const mode = this.camera.toggleScanMode();
+        if (btnScanMode) {
+          btnScanMode.innerHTML = mode === 'text' ? '🔤' : '🎯';
+          btnScanMode.style.color = mode === 'text' ? '#FBBF24' : '#38BDF8';
+        }
+      }
+    });
+
+    const btnUpload = document.getElementById('btn-upload-photo');
+    const fileInput = document.getElementById('file-photo-input');
+    attachFastClick(btnUpload, () => {
+      if (fileInput) fileInput.click();
+    });
+
+    fileInput?.addEventListener('change', (e) => {
+      const file = e.target.files && e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const img = new Image();
+        img.onload = () => {
+          if (this.camera) this.camera.processUploadedImage(img);
+        };
+        img.src = event.target.result;
+      };
+      reader.readAsDataURL(file);
+    });
+
     // Interactive CEFR level filter bar (ALL, A1-B1, B2, C1-C2)
     const cefrBtns = document.querySelectorAll('.cefr-pill-btn');
     cefrBtns.forEach(btn => {
@@ -639,13 +670,30 @@ class AppController {
   }
 
   /* ===================================================
-   * 4. DEEP KNOWLEDGE HUB TAB
+   * 4. DEEP KNOWLEDGE HUB TAB (Visual Dictionary & AR Scrapbook)
    * =================================================== */
   initKnowledgeHub() {
     const grid = document.getElementById('vocab-grid');
     const searchInput = document.getElementById('vocab-search-input');
+    const searchRow = document.getElementById('knowledge-search-row');
+    const btnAll = document.getElementById('btn-tab-all-vocab');
+    const btnScrap = document.getElementById('btn-tab-my-scrapbook');
+    const badgeCount = document.getElementById('scrapbook-badge-count');
+    const emptyState = document.getElementById('scrapbook-empty-state');
 
-    const renderGrid = (items) => {
+    let currentView = 'all';
+
+    const updateBadgeCount = () => {
+      const history = StorageManager.getScannedHistory();
+      const count = history.filter(h => h.thumbnail).length;
+      if (badgeCount) badgeCount.textContent = count;
+    };
+    updateBadgeCount();
+
+    const renderAllGrid = (items) => {
+      if (emptyState) emptyState.style.display = 'none';
+      if (grid) grid.style.display = 'grid';
+      if (searchRow) searchRow.style.display = 'block';
       grid.innerHTML = '';
       items.forEach(v => {
         const card = document.createElement('div');
@@ -663,12 +711,75 @@ class AppController {
       });
     };
 
-    renderGrid(VISUAL_VOCABULARY_LIST);
+    const renderScrapbookGrid = () => {
+      const history = StorageManager.getScannedHistory().filter(h => h.thumbnail);
+      updateBadgeCount();
+      if (searchRow) searchRow.style.display = 'none';
+
+      if (history.length === 0) {
+        if (grid) grid.style.display = 'none';
+        if (emptyState) emptyState.style.display = 'block';
+        return;
+      }
+
+      if (emptyState) emptyState.style.display = 'none';
+      if (grid) grid.style.display = 'grid';
+      grid.innerHTML = '';
+
+      history.forEach(item => {
+        const vocab = findVisualWord(item.key);
+        if (!vocab) return;
+
+        const card = document.createElement('div');
+        card.className = 'vocab-grid-item';
+        card.style.position = 'relative';
+        card.style.overflow = 'hidden';
+        card.innerHTML = `
+          <div style="height:110px; border-radius:8px; overflow:hidden; margin-bottom:8px; background:#000;">
+            <img src="${item.thumbnail}" style="width:100%; height:100%; object-fit:cover;" alt="${vocab.wordEn}">
+          </div>
+          <div class="vocab-item-top">
+            <span class="vocab-word" style="font-size:14px;">${vocab.wordEn}</span>
+            <span class="code-lang-tag" style="background:#10B981; color:#0F172A; font-weight:700;">Đã Quét</span>
+          </div>
+          <div class="vocab-meaning" style="font-size:12px;">${vocab.meaningVi}</div>
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-top:6px;">
+            <span style="font-family:monospace; font-size:11px; color:#38BDF8;">${vocab.ipa}</span>
+            <button class="header-btn scrap-listen-btn" style="padding:2px 8px; font-size:12px;">🔊</button>
+          </div>
+        `;
+
+        card.querySelector('.scrap-listen-btn')?.addEventListener('click', (e) => {
+          e.stopPropagation();
+          this.speech.speak(vocab.wordEn);
+        });
+
+        card.addEventListener('click', () => this.openDeepKnowledgeSheet(vocab));
+        grid.appendChild(card);
+      });
+    };
+
+    renderAllGrid(VISUAL_VOCABULARY_LIST);
+
+    btnAll?.addEventListener('click', () => {
+      currentView = 'all';
+      btnAll.classList.add('active');
+      btnScrap?.classList.remove('active');
+      renderAllGrid(VISUAL_VOCABULARY_LIST);
+    });
+
+    btnScrap?.addEventListener('click', () => {
+      currentView = 'scrapbook';
+      btnScrap.classList.add('active');
+      btnAll?.classList.remove('active');
+      renderScrapbookGrid();
+    });
 
     searchInput?.addEventListener('input', (e) => {
+      if (currentView !== 'all') return;
       const query = e.target.value.toLowerCase().trim();
       if (!query) {
-        renderGrid(VISUAL_VOCABULARY_LIST);
+        renderAllGrid(VISUAL_VOCABULARY_LIST);
         return;
       }
       const filtered = VISUAL_VOCABULARY_LIST.filter(v =>
@@ -676,7 +787,7 @@ class AppController {
         v.meaningVi.toLowerCase().includes(query) ||
         v.key.toLowerCase().includes(query)
       );
-      renderGrid(filtered);
+      renderAllGrid(filtered);
     });
   }
 
