@@ -1,0 +1,9 @@
+{
+  "cleanUrls": true,
+  "rewrites": [
+    { "source": "/", "destination": "/pwa/index.html" },
+    { "source": "/pwa", "destination": "/pwa/index.html" },
+    { "source": "/pwa/(.*)", "destination": "/pwa/$1" },
+    { "source": "/(.*)", "destination": "/pwa/$1" }
+  ]
+}
