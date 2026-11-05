@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <title>DevEnglish AI - Học Tiếng Anh Cho Lập Trình Viên & AR Lens</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  
+  <!-- iOS Safari PWA Meta Tags -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="DevEnglish">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+  <link rel="icon" type="image/png" href="icons/favicon.png">
+  
+  <!-- Web App Manifest -->
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#0A0F1D">
+  
+  <!-- Stylesheet -->
+  <link rel="stylesheet" href="css/style.css">
+
+  <!-- Optional CDN for Mobile Object Detection (Graceful Offline Fallback) -->
+  <script defer src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/@tensorflow-models/coco-ssd"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/@tensorflow-models/mobilenet@2.1.0/dist/mobilenet.min.js"></script>
+</head>
+<body>
+
+  <!-- App Header -->
+  <header class="app-header">
+    <div class="brand-badge">
+      <div class="brand-logo">⚡</div>
+      <div>
+        <h1 class="brand-title">DevEnglish AI</h1>
+        <div class="brand-sub">IT English & AR Lens</div>
+      </div>
+    </div>
+    <div class="header-actions">
+      <button class="header-btn" id="btn-show-install" title="Hướng dẫn cài đặt PWA trên iPhone">📲 Cài iPhone</button>
+      <div class="hud-badge" id="camera-hud-status">
+        <span class="hud-dot"></span> Sẵn sàng
+      </div>
+    </div>
+  </header>
+
+  <!-- ===================================================
+   * TAB 1: AR CAMERA REAL-TIME LENS
+   * =================================================== -->
+  <main id="tab-camera" class="tab-pane active">
+    <div class="camera-container">
+      <video id="camera-video" playsinline webkit-playsinline muted autoplay></video>
+      <canvas id="camera-canvas"></canvas>
+
+      <!-- HUD Top Controls -->
+      <div class="camera-hud-top">
+        <div class="hud-badge">
+          <span>🎯 AR Lens</span>
+        </div>
+        <div class="hud-buttons">
+          <button id="btn-auto-voice" class="hud-icon-btn" title="Tự Động Phát Âm Khi Quét">🔊</button>
+          <button id="btn-torch" class="hud-icon-btn" title="Bật/Tắt Đèn Flash">🔦</button>
+          <button id="btn-freeze" class="hud-icon-btn" title="Tạm Dừng Khung Hình">⏸️</button>
+          <button id="btn-flip-cam" class="hud-icon-btn" title="Đổi Camera Sau / Trước">🔄</button>
+        </div>
+      </div>
+
+      <div id="live-scan-indicator" style="position:absolute; top:68px; left:16px; background:rgba(15,23,42,0.85); border:1px solid rgba(56,189,248,0.5); border-radius:20px; padding:4px 10px; font-size:11px; color:#38BDF8; font-weight:600; display:flex; align-items:center; gap:6px; z-index:80; pointer-events:none;">
+        <span class="hud-dot" style="background:#10B981;"></span> Quét Trực Tiếp (Live Stream AI)
+      </div>
+
+      <!-- Interactive CEFR Level Filter Bar (A1 - C2) -->
+      <div class="hud-cefr-bar" id="hud-cefr-bar" style="position:absolute; top:68px; right:16px; display:flex; gap:4px; z-index:85; background:rgba(15,23,42,0.85); padding:3px 6px; border-radius:16px; border:1px solid rgba(255,255,255,0.15);">
+        <button class="cefr-pill-btn active" data-cefr="ALL" style="background:#38BDF8; color:#0F172A; border:none; border-radius:12px; padding:3px 8px; font-size:10px; font-weight:700; cursor:pointer;">ALL</button>
+        <button class="cefr-pill-btn" data-cefr="A1-B1" style="background:transparent; color:#94A3B8; border:none; border-radius:12px; padding:3px 8px; font-size:10px; font-weight:600; cursor:pointer;">A1-B1</button>
+        <button class="cefr-pill-btn" data-cefr="B2" style="background:transparent; color:#94A3B8; border:none; border-radius:12px; padding:3px 8px; font-size:10px; font-weight:600; cursor:pointer;">B2</button>
+        <button class="cefr-pill-btn" data-cefr="C1-C2" style="background:transparent; color:#94A3B8; border:none; border-radius:12px; padding:3px 8px; font-size:10px; font-weight:600; cursor:pointer;">C1-C2</button>
+      </div>
+
+      <!-- Scavenger Hunt Quest HUD Pill -->
+      <div id="scavenger-quest-pill" style="position:absolute; top:104px; left:16px; right:16px; background:rgba(15,23,42,0.88); border:1px solid rgba(245,158,11,0.5); border-radius:12px; padding:6px 12px; font-size:11px; color:#FBBF24; font-weight:600; display:flex; align-items:center; justify-content:space-between; z-index:80; box-shadow:0 4px 12px rgba(0,0,0,0.4);">
+        <div style="display:flex; align-items:center; gap:8px;">
+          <span>🎯</span>
+          <span id="quest-text-desc">Thử thách: Tìm 1 thiết bị công nghệ quanh bạn</span>
+        </div>
+        <span id="quest-exp-badge" style="background:rgba(245,158,11,0.25); border:1px solid #F59E0B; border-radius:8px; padding:2px 6px; font-size:10px; color:#FCD34D;">+100 XP</span>
+      </div>
+
+      <!-- HUD Bottom Overlay Cards & Scan Trigger -->
+      <div class="camera-hud-bottom">
+        <div class="detected-cards-scroll" id="detected-cards-scroll">
+          <!-- Dynamically populated pills -->
+        </div>
+
+        <div class="camera-controls-bar">
+          <button id="btn-capture-scan" class="capture-scan-btn">
+            <span>✨</span> Quét Đồ Vật Này
+          </button>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- ===================================================
+   * TAB 2: DEVENGLISH AI SUITE (IT ENGLISH HUB)
+   * =================================================== -->
+  <main id="tab-it-hub" class="tab-pane">
+    <div class="it-hub-container">
+      <!-- Segmented Subtabs -->
+      <div class="segmented-control">
+        <button class="segment-btn active" data-subtab="subtab-roadmap">🗺️ Lộ Trình 0 ➔ IELTS 9.0</button>
+        <button class="segment-btn" data-subtab="subtab-code">💻 Code Lab</button>
+        <button class="segment-btn" data-subtab="subtab-doc">📄 Tech Docs</button>
+        <button class="segment-btn" data-subtab="subtab-interview">🎯 Phỏng Vấn</button>
+        <button class="segment-btn" data-subtab="subtab-practice">🛠️ Thực Chiến</button>
+      </div>
+
+      <!-- 2.0 Comprehensive Zero-to-Hero IELTS 8.0 - 9.0 & IT Mastery Roadmap -->
+      <section id="subtab-roadmap" class="it-subtab-pane active">
+        <div class="settings-card" style="border-color: rgba(56, 189, 248, 0.4); background: linear-gradient(135deg, rgba(15,23,42,0.9), rgba(30,41,59,0.8));">
+          <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+            <div>
+              <span class="hud-badge" style="background:rgba(56,189,248,0.2); color:#38BDF8; font-weight:700;">Zero to Hero Mastery</span>
+              <h2 style="font-size:18px; font-weight:800; color:#FFFFFF; margin-top:6px;">Lộ Trình Từ 0 Lên IELTS 8.0 - 9.0 & Kỹ Sư Toàn Cầu</h2>
+            </div>
+            <span style="font-size:24px;">🎓</span>
+          </div>
+          <p style="font-size:12px; color:var(--text-secondary); line-height:1.5; margin-top:6px;">
+            Thiết kế chuyên biệt cho người học từ con số 0 đến bậc thầy tiếng Anh kỹ thuật và phỏng vấn các tập đoàn công nghệ toàn cầu (Silicon Valley, Châu Âu, Singapore).
+          </p>
+
+          <!-- Stage Selection Tabs -->
+          <div style="display:grid; grid-template-columns:repeat(5, 1fr); gap:4px; margin-top:12px;" id="roadmap-stage-buttons">
+            <button class="roadmap-stage-btn active" data-stage="0" style="padding:8px 4px; border-radius:8px; border:1px solid #38BDF8; background:rgba(56,189,248,0.2); color:#38BDF8; font-size:11px; font-weight:700; cursor:pointer; text-align:center;">
+              <div>🌱</div>Chặng 1
+            </button>
+            <button class="roadmap-stage-btn" data-stage="1" style="padding:8px 4px; border-radius:8px; border:1px solid rgba(255,255,255,0.15); background:transparent; color:#94A3B8; font-size:11px; font-weight:600; cursor:pointer; text-align:center;">
+              <div>🚀</div>Chặng 2
+            </button>
+            <button class="roadmap-stage-btn" data-stage="2" style="padding:8px 4px; border-radius:8px; border:1px solid rgba(255,255,255,0.15); background:transparent; color:#94A3B8; font-size:11px; font-weight:600; cursor:pointer; text-align:center;">
+              <div>⚡</div>Chặng 3
+            </button>
+            <button class="roadmap-stage-btn" data-stage="3" style="padding:8px 4px; border-radius:8px; border:1px solid rgba(255,255,255,0.15); background:transparent; color:#94A3B8; font-size:11px; font-weight:600; cursor:pointer; text-align:center;">
+              <div>💎</div>Chặng 4
+            </button>
+            <button class="roadmap-stage-btn" data-stage="4" style="padding:8px 4px; border-radius:8px; border:1px solid rgba(255,255,255,0.15); background:transparent; color:#94A3B8; font-size:11px; font-weight:600; cursor:pointer; text-align:center;">
+              <div>👑</div>Chặng 5
+            </button>
+          </div>
+        </div>
+
+        <!-- Dynamic Stage Details Container -->
+        <div id="roadmap-stage-content" style="margin-top:14px;">
+          <!-- Injected via JavaScript -->
+        </div>
+      </section>
+
+      <!-- 2.1 Code-to-English AI Lab -->
+      <section id="subtab-code" class="it-subtab-pane">
+        <div class="code-card">
+          <div class="code-header">
+            <div>
+              <span class="code-lang-tag" id="code-lang">Java</span>
+              <strong id="code-title" style="margin-left: 8px; font-size: 14px; color: #FFF;">Tính tổng</strong>
+            </div>
+            <div style="display:flex; gap:6px;">
+              <button class="header-btn" id="btn-prev-code" style="padding:4px 8px;">◀</button>
+              <button class="header-btn" id="btn-next-code" style="padding:4px 8px;">▶</button>
+            </div>
+          </div>
+          <pre class="code-body" id="code-block"></pre>
+        </div>
+
+        <div class="interactive-section">
+          <div class="section-label">
+            <span>Mô tả kỹ thuật:</span>
+            <span class="code-lang-tag" id="code-level">Junior</span>
+          </div>
+          <p id="code-fn-vi" style="font-size: 13px; color: var(--text-secondary);"></p>
+          <p style="font-size: 12px; color: var(--accent-cyan); margin-top: 6px;">
+            🔑 Từ khóa bắt buộc: <span id="code-req-terms" style="color:#FFF;"></span>
+          </p>
+
+          <div class="section-label" style="margin-top: 14px;">
+            <span>Giải thích đoạn code bằng tiếng Anh:</span>
+          </div>
+          <div class="voice-input-row">
+            <textarea id="code-explanation-input" class="text-input-field" placeholder="Ví dụ: This function takes two integers and returns their sum..."></textarea>
+            <button id="btn-code-mic" class="mic-btn" title="Nói qua micro trên iPhone">🎙️</button>
+          </div>
+
+          <button id="btn-eval-code" class="action-btn-primary">
+            🚀 AI Chấm Điểm 2 Trục Độc Lập
+          </button>
+
+          <!-- Dual Rubric Result -->
+          <div id="code-result-card" class="dual-rubric-card">
+            <div class="score-meter-row">
+              <div class="score-meter-col">
+                <div class="meter-number" id="code-tech-score">0/100</div>
+                <div class="meter-label">Độ Đúng Kỹ Thuật</div>
+              </div>
+              <div class="score-meter-col">
+                <div class="meter-number" id="code-eng-score" style="color:var(--accent-indigo);">0/100</div>
+                <div class="meter-label">Chất Lượng Tiếng Anh</div>
+              </div>
+            </div>
+
+            <div class="feedback-text" id="code-tech-feedback"></div>
+            <div class="feedback-text" id="code-eng-feedback"></div>
+
+            <div class="native-sample-box">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+                <strong style="color:var(--accent-cyan); font-size:12px;">🌟 Câu mẫu Native Phrasing:</strong>
+                <button id="btn-listen-native" class="header-btn" style="padding:2px 8px; font-size:11px;">🔊 Nghe</button>
+              </div>
+              <p id="code-native-sample" style="color:#FFFFFF; line-height:1.4;"></p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 2.2 Technical Documentation Reader -->
+      <section id="subtab-doc" class="it-subtab-pane">
+        <div class="code-card">
+          <div class="code-header">
+            <div>
+              <span class="code-lang-tag" id="doc-domain">React</span>
+              <strong id="doc-title" style="margin-left: 8px; font-size: 14px; color: #FFF;">useEffect Hook</strong>
+            </div>
+            <div style="display:flex; gap:6px;">
+              <button class="header-btn" id="btn-prev-doc" style="padding:4px 8px;">◀</button>
+              <button class="header-btn" id="btn-next-doc" style="padding:4px 8px;">▶</button>
+            </div>
+          </div>
+          <div style="padding:14px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+              <span class="code-lang-tag" id="doc-level">Intermediate</span>
+              <button class="header-btn" id="btn-listen-doc" style="padding:4px 10px;">🔊 Đọc Toàn Bài</button>
+            </div>
+            <p id="doc-original-text" style="font-size:14px; line-height:1.6; color:#F8FAFC;"></p>
+          </div>
+        </div>
+
+        <div class="interactive-section">
+          <div class="section-label">
+            <span>💡 Plain English (Đơn Giản Hóa):</span>
+          </div>
+          <p id="doc-plain-text" style="font-size:13px; line-height:1.5; color:#94A3B8;"></p>
+        </div>
+
+        <div class="interactive-section">
+          <div class="section-label">
+            <span>📚 Thuật Ngữ Cốt Lõi:</span>
+          </div>
+          <div id="doc-vocab-list"></div>
+        </div>
+
+        <div class="interactive-section">
+          <div class="section-label">
+            <span>🧠 Trắc Nghiệm Đọc Hiểu Tài Liệu:</span>
+          </div>
+          <div id="doc-quiz-list"></div>
+        </div>
+      </section>
+
+      <!-- 2.3 IT English Interview Simulator -->
+      <section id="subtab-interview" class="it-subtab-pane">
+        <div class="code-card">
+          <div class="code-header">
+            <div>
+              <span class="code-lang-tag" id="interview-role">Junior Java</span>
+              <span class="hud-badge" id="interview-round" style="margin-left:6px; font-size:11px; padding:3px 8px;">Round 1</span>
+            </div>
+            <div style="display:flex; gap:6px;">
+              <button class="header-btn" id="btn-prev-question" style="padding:4px 8px;">◀</button>
+              <button class="header-btn" id="btn-next-question" style="padding:4px 8px;">▶</button>
+            </div>
+          </div>
+          <div style="padding:16px;">
+            <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+              <p id="interview-question-en" style="font-size:15px; font-weight:700; color:#FFFFFF; line-height:1.4;"></p>
+              <button class="header-btn" id="btn-read-question" style="padding:4px 8px;" title="AI Đọc Câu Hỏi">🔊</button>
+            </div>
+            <p id="interview-question-vi" style="font-size:13px; color:var(--text-secondary); margin-top:8px;"></p>
+            <p id="interview-tips" style="font-size:12px; color:var(--accent-cyan); margin-top:8px; background:rgba(56,189,248,0.06); padding:8px; border-radius:8px;"></p>
+          </div>
+        </div>
+
+        <div class="interactive-section">
+          <div class="section-label">
+            <span>Câu trả lời của bạn:</span>
+          </div>
+          <div class="voice-input-row">
+            <textarea id="interview-answer-input" class="text-input-field" placeholder="Bấm micro để trả lời bằng giọng nói tiếng Anh hoặc nhập trực tiếp..."></textarea>
+            <button id="btn-interview-mic" class="mic-btn" title="Nói bằng micro iPhone">🎙️</button>
+          </div>
+          <button id="btn-eval-interview" class="action-btn-primary">
+            🎯 Đánh Giá Phỏng Vấn (5 Tiêu Chí)
+          </button>
+
+          <!-- Interview Result Card -->
+          <div id="interview-result-card" class="dual-rubric-card">
+            <div style="text-align:center; margin-bottom:12px;">
+              <div style="font-size:28px; font-weight:800; color:var(--accent-cyan);" id="interview-overall-score">0/100</div>
+              <div style="font-size:12px; color:var(--text-secondary);">Điểm Phỏng Vấn Tổng Hợp</div>
+            </div>
+
+            <div class="score-meter-row">
+              <div class="score-meter-col">
+                <div class="meter-number" id="interview-tech-score" style="font-size:18px;">0</div>
+                <div class="meter-label">Technical</div>
+              </div>
+              <div class="score-meter-col">
+                <div class="meter-number" id="interview-vocab-score" style="font-size:18px;">0</div>
+                <div class="meter-label">Vocabulary</div>
+              </div>
+              <div class="score-meter-col">
+                <div class="meter-number" id="interview-fluency-score" style="font-size:18px;">0</div>
+                <div class="meter-label">Fluency</div>
+              </div>
+            </div>
+
+            <div class="feedback-text" id="interview-feedback"></div>
+
+            <div class="native-sample-box">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+                <strong style="color:var(--accent-cyan); font-size:12px;">🏆 Câu Trả Lời Chuẩn Band 7.5+:</strong>
+                <button id="btn-listen-sample-answer" class="header-btn" style="padding:2px 8px; font-size:11px;">🔊 Nghe</button>
+              </div>
+              <p id="interview-sample-answer" style="color:#FFFFFF; line-height:1.4;"></p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 2.4 Workplace Practice Tools -->
+      <section id="subtab-practice" class="it-subtab-pane">
+        <!-- Bug Report -->
+        <div class="interactive-section">
+          <div class="section-label">
+            <span>🐞 Bug Report English Trainer (Jira / GitHub):</span>
+          </div>
+          <input type="text" id="bug-title-input" class="search-input" placeholder="Bug Title (e.g., [Auth] Login button fails to respond on iOS 16)" style="margin-bottom:8px;">
+          <textarea id="bug-steps-input" class="text-input-field" placeholder="Steps to Reproduce (1. Open app, 2. Tap login...)" style="margin-bottom:8px;"></textarea>
+          <input type="text" id="bug-expected-input" class="search-input" placeholder="Expected Result (e.g., User is redirected to dashboard)" style="margin-bottom:8px;">
+          <input type="text" id="bug-actual-input" class="search-input" placeholder="Actual Result (e.g., App displays a spinner indefinitely)" style="margin-bottom:8px;">
+          <input type="text" id="bug-env-input" class="search-input" placeholder="Environment (e.g., iPhone 14 Pro, iOS 17.2, Safari)" style="margin-bottom:8px;">
+          <button id="btn-eval-bug" class="action-btn-primary">Kiểm Tra Bug Report</button>
+          <div id="bug-result" class="dual-rubric-card"></div>
+        </div>
+
+        <!-- Git Conventional Commit -->
+        <div class="interactive-section">
+          <div class="section-label">
+            <span>🌿 Conventional Commits Validator:</span>
+          </div>
+          <input type="text" id="commit-input" class="search-input" placeholder="e.g. feat(auth): add OAuth2 login flow with Google">
+          <button id="btn-eval-commit" class="action-btn-primary" style="margin-top:8px;">Kiểm Tra Commit</button>
+          <div id="commit-result" class="dual-rubric-card"></div>
+        </div>
+
+        <!-- Daily Standup -->
+        <div class="interactive-section">
+          <div class="section-label">
+            <span>⏱️ Daily Standup Scrum Simulator:</span>
+          </div>
+          <input type="text" id="standup-yesterday" class="search-input" placeholder="Yesterday: What did you accomplish?" style="margin-bottom:8px;">
+          <input type="text" id="standup-today" class="search-input" placeholder="Today: What will you work on?" style="margin-bottom:8px;">
+          <input type="text" id="standup-blockers" class="search-input" placeholder="Blockers: Are there any impediments?" style="margin-bottom:8px;">
+          <button id="btn-eval-standup" class="action-btn-primary">Kiểm Tra Standup</button>
+          <div id="standup-result" class="dual-rubric-card"></div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <!-- ===================================================
+   * TAB 3: DEEP KNOWLEDGE HUB TAB
+   * =================================================== -->
+  <main id="tab-knowledge" class="tab-pane">
+    <div class="knowledge-container">
+      <div class="search-box-row">
+        <input type="text" id="vocab-search-input" class="search-input" placeholder="🔍 Tìm kiếm từ vựng (laptop, book, car, coffee...)">
+      </div>
+      <div class="vocab-grid" id="vocab-grid"></div>
+    </div>
+  </main>
+
+  <!-- ===================================================
+   * TAB 4: SETTINGS & PROFILE TAB
+   * =================================================== -->
+  <main id="tab-settings" class="tab-pane">
+    <div class="settings-container">
+      <div class="settings-card">
+        <h3 style="font-size:16px; font-weight:700; color:#FFF; margin-bottom:12px;">📊 Tiến Độ Học Tập</h3>
+        <div class="stats-grid">
+          <div class="stat-box">
+            <div class="stat-num" id="stat-scanned">0</div>
+            <div class="stat-desc">Đã Quét AR</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-num" id="stat-learned">0</div>
+            <div class="stat-desc">Đã Thành Thạo</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-num" id="stat-total">35</div>
+            <div class="stat-desc">Tổng Từ Vựng</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="settings-card">
+        <h3 style="font-size:16px; font-weight:700; color:#FFF; margin-bottom:12px;">⚙️ Cài Đặt Âm Thanh & Giọng Đọc</h3>
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <span style="font-size:14px; color:var(--text-primary);">Giọng Phát Âm Tiếng Anh:</span>
+          <select id="setting-voice-accent" class="search-input" style="width:140px; padding:6px 10px;">
+            <option value="en-US">Mỹ (en-US)</option>
+            <option value="en-GB">Anh (en-GB)</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Security & Privacy Hub -->
+      <div class="settings-card" style="border-color: rgba(16, 185, 129, 0.4); background: rgba(16, 185, 129, 0.04);">
+        <h3 style="font-size:16px; font-weight:700; color:#10B981; margin-bottom:8px; display:flex; align-items:center; gap:8px;">
+          <span>🛡️</span> Trung Tâm Bảo Mật & Quyền Riêng Tư
+        </h3>
+        <p style="font-size:13px; color:#E2E8F0; line-height:1.6;">
+          🔒 <strong>Xử lý 100% Cục bộ:</strong> Luồng camera được phân tích trực tiếp trên chip xử lý của iPhone. Hình ảnh không bao giờ bị ghi lại hoặc gửi về máy chủ bên thứ ba.
+          <br>🛡️ <strong>Chuẩn PWA Sandbox Apple:</strong> Ứng dụng chạy trong môi trường hộp cát độc lập, cách ly hoàn toàn với dữ liệu cá nhân.
+          <br>⚡ <strong>Bảo mật khóa API:</strong> Nếu bạn nhập khóa Gemini API bên dưới, khóa được mã hóa lưu trữ riêng trên thiết bị của bạn.
+        </p>
+      </div>
+
+      <!-- Optional Gemini Vision AI Integration -->
+      <div class="settings-card" style="border-color: rgba(56, 189, 248, 0.4);">
+        <h3 style="font-size:16px; font-weight:700; color:var(--accent-cyan); margin-bottom:8px; display:flex; align-items:center; gap:8px;">
+          <span>🌐</span> Quét Siêu AI Mọi Đồ Vật (Tùy chọn)
+        </h3>
+        <p style="font-size:12px; color:var(--text-secondary); line-height:1.5; margin-bottom:10px;">
+          Mặc định hệ thống dùng AI MobileNet nhận diện hơn 1.000 đồ vật thực tế. Bạn có thể kết nối thêm Google Gemini 1.5 Flash Vision (miễn phí) để nhận biết chính xác tuyệt đối mọi vật thể trên thế giới.
+        </p>
+        <div style="display:flex; gap:8px; flex-direction:column;">
+          <input type="password" id="input-gemini-key" class="search-input" placeholder="Dán Gemini API Key của bạn tại đây...">
+          <div style="display:flex; gap:8px;">
+            <button id="btn-save-key" class="action-btn-primary" style="flex:1; margin-top:0; padding:10px; font-size:13px;">💾 Lưu Khóa Bảo Mật</button>
+            <button id="btn-clear-key" class="header-btn" style="padding:10px 14px; color:var(--accent-rose); font-size:13px;">Xóa</button>
+          </div>
+          <div id="key-status-msg" style="font-size:12px; color:var(--accent-emerald); display:none; margin-top:4px;"></div>
+        </div>
+      </div>
+
+      <div class="settings-card">
+        <h3 style="font-size:16px; font-weight:700; color:#FFF; margin-bottom:8px;">📱 Chạy Trên iPhone</h3>
+        <p style="font-size:13px; color:var(--text-secondary); line-height:1.5;">
+          Ứng dụng hoạt động 100% Offline thông qua Service Worker. Để có trải nghiệm như app tải từ App Store:
+          <br>1. Mở Safari trên iPhone
+          <br>2. Bấm nút <strong>Chia sẻ (Share)</strong>
+          <br>3. Chọn <strong>"Thêm vào Màn hình chính" (Add to Home Screen)</strong>
+        </p>
+        <button id="btn-clear-cache" class="header-btn" style="margin-top:14px; color:var(--accent-rose); border-color:rgba(244,63,94,0.3);">
+          🗑️ Xóa Lịch Sử & Bộ Nhớ Đệm
+        </button>
+      </div>
+    </div>
+  </main>
+
+  <!-- ===================================================
+   * ENCYCLOPEDIC DEEP KNOWLEDGE BOTTOM SHEET
+   * =================================================== -->
+  <div class="bottom-sheet-overlay" id="sheet-overlay"></div>
+  <div class="bottom-sheet" id="bottom-sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-header-row">
+      <div>
+        <h2 class="sheet-title" id="sheet-word">Word</h2>
+        <div class="sheet-ipa" id="sheet-ipa">/ipa/</div>
+      </div>
+      <div style="display:flex; gap:8px;">
+        <button class="header-btn" id="sheet-speak-btn">🔊 Nghe</button>
+        <button class="sheet-close-btn" id="btn-close-sheet">✕</button>
+      </div>
+    </div>
+
+    <!-- Real-World Camera Snapshot Thumbnail (Ý tưởng 18) -->
+    <div id="sheet-thumbnail-wrapper" style="display:none; margin: 10px 0; border-radius: 12px; overflow: hidden; border: 1px solid rgba(56,189,248,0.4); max-height: 160px; background: rgba(0,0,0,0.4); text-align: center; position: relative;">
+      <img id="sheet-thumbnail-img" style="width: 100%; height: 160px; object-fit: cover; display: block;" src="" alt="Thumbnail" />
+      <span style="position: absolute; bottom: 6px; right: 8px; background: rgba(15,23,42,0.85); color: #38BDF8; font-size: 10px; font-weight: 600; padding: 2px 6px; border-radius: 4px; border: 1px solid rgba(56,189,248,0.3);">📷 Ảnh Thật Từ Camera</span>
+    </div>
+
+    <!-- AI Shadowing & Real-Time IELTS Pronunciation Scoring -->
+    <div class="sheet-section" id="sheet-shadowing-section" style="background: rgba(56, 189, 248, 0.06); border: 1px solid rgba(56, 189, 248, 0.3); border-radius: 12px; padding: 12px; margin-top: 10px;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+        <span class="sheet-section-title" style="margin-bottom: 0; color: #38BDF8;">🎙️ Luyện Phát Âm (Shadowing AI & Chấm Điểm IELTS)</span>
+        <span id="shadowing-target-badge" style="font-size: 10px; background: rgba(56, 189, 248, 0.2); color: #38BDF8; padding: 2px 8px; border-radius: 10px; font-weight: 700;">Target Word</span>
+      </div>
+      
+      <div style="display: flex; gap: 8px; margin-bottom: 10px;">
+        <button id="btn-practice-word" class="cefr-pill-btn active" style="flex: 1; padding: 6px; font-size: 11px; font-weight: 700; border-radius: 8px; cursor: pointer; background: #38BDF8; color: #0F172A; border: none;">Luyện Từ Vựng</button>
+        <button id="btn-practice-sentence" class="cefr-pill-btn" style="flex: 1; padding: 6px; font-size: 11px; font-weight: 600; border-radius: 8px; cursor: pointer; background: rgba(255,255,255,0.08); color: #94A3B8; border: none;">Luyện Cả Câu (C1/C2)</button>
+      </div>
+
+      <div id="shadowing-target-box" style="background: rgba(15, 23, 42, 0.8); border: 1px dashed rgba(56, 189, 248, 0.4); border-radius: 8px; padding: 10px; margin-bottom: 10px; text-align: center;">
+        <div id="shadowing-target-text" style="font-size: 16px; font-weight: 700; color: #FFFFFF;">Laptop</div>
+        <div id="shadowing-target-ipa" style="font-size: 12px; color: #38BDF8; font-family: monospace; margin-top: 3px;">/ˈlæp.tɒp/ • Trọng âm: LAP-top</div>
+      </div>
+
+      <div style="display: flex; gap: 8px; align-items: center; justify-content: center;">
+        <button id="btn-shadowing-mic" class="mic-btn" style="width: 52px; height: 52px; font-size: 24px; border-radius: 50%; box-shadow: 0 0 16px rgba(56, 189, 248, 0.4);" title="Bấm để phát âm">🎙️</button>
+        <button id="btn-shadowing-listen" class="header-btn" style="padding: 10px 14px; font-size: 13px; font-weight: 600;">🔊 Nghe Mẫu</button>
+      </div>
+      <div id="shadowing-mic-status" style="text-align: center; font-size: 11px; color: #94A3B8; margin-top: 6px;">Bấm micro rồi phát âm to, rõ ràng vào mic</div>
+
+      <!-- Real-Time Evaluation Result Card -->
+      <div id="shadowing-result-box" style="display: none; margin-top: 10px; background: rgba(15, 23, 42, 0.95); border: 1px solid rgba(16, 185, 129, 0.4); border-radius: 10px; padding: 10px;">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <span style="font-size: 12px; color: #94A3B8;">Kết quả chấm điểm IELTS:</span>
+          <span id="shadowing-band-badge" style="font-size: 13px; font-weight: 800; color: #10B981; background: rgba(16, 185, 129, 0.2); padding: 2px 8px; border-radius: 6px;">Band 8.5</span>
+        </div>
+        <div id="shadowing-feedback-vi" style="font-size: 12px; color: #E2E8F0; margin-top: 6px; line-height: 1.4;"></div>
+        <div id="shadowing-spoken-text" style="font-size: 11px; color: #38BDF8; margin-top: 4px; font-style: italic;"></div>
+        <div id="shadowing-word-breakdown" style="display: flex; flex-wrap: wrap; gap: 4px; margin-top: 8px;"></div>
+      </div>
+    </div>
+
+    <div class="sheet-section">
+      <div class="sheet-section-title">Định Nghĩa</div>
+      <p id="sheet-meaning" style="font-size:14px; color:#FFF;"></p>
+    </div>
+
+    <div class="sheet-section">
+      <div class="sheet-section-title">Cụm Từ Đi Kèm (Collocations)</div>
+      <p id="sheet-collocations-en" style="font-size:13px; font-weight:600; color:#FFF;"></p>
+      <p id="sheet-collocations-vi" style="font-size:12px; color:var(--text-secondary); margin-top:2px;"></p>
+    </div>
+
+    <div class="sheet-section">
+      <div class="sheet-section-title">Câu Ví Dụ Thực Tế</div>
+      <p id="sheet-sentence-en" style="font-size:13px; font-weight:600; color:#FFF;"></p>
+      <p id="sheet-sentence-vi" style="font-size:12px; color:var(--text-secondary); margin-top:2px;"></p>
+    </div>
+
+    <div class="sheet-section">
+      <div class="sheet-section-title">Thành Ngữ (Idiom)</div>
+      <p id="sheet-idiom-en" style="font-size:13px; font-weight:600; color:#FFF;"></p>
+      <p id="sheet-idiom-vi" style="font-size:12px; color:var(--text-secondary); margin-top:2px;"></p>
+    </div>
+
+    <div class="sheet-section">
+      <div class="sheet-section-title">Hội Thoại Mẫu (Mini-Dialogue)</div>
+      <p id="sheet-dialogue-en" style="font-size:13px; white-space:pre-line; color:#FFF;"></p>
+      <p id="sheet-dialogue-vi" style="font-size:12px; white-space:pre-line; color:var(--text-secondary); margin-top:4px;"></p>
+    </div>
+
+    <div class="sheet-section">
+      <div class="sheet-section-title">Ghi Chú Kỹ Thuật (IT / Everyday Context)</div>
+      <p id="sheet-tech-en" style="font-size:13px; color:#FFF;"></p>
+      <p id="sheet-tech-vi" style="font-size:12px; color:var(--text-secondary); margin-top:2px;"></p>
+    </div>
+
+    <div class="sheet-section">
+      <div class="sheet-section-title">🎯 Trắc Nghiệm Nhanh AR</div>
+      <div id="sheet-quiz-box"></div>
+    </div>
+
+    <div class="sheet-section">
+      <div class="sheet-section-title">🧠 Thuật Toán Ôn Tập Ngắt Quãng SM-2 (SuperMemo-2)</div>
+      <div id="sheet-sm2-box" style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:10px; padding:12px;">
+        <div style="font-size:12px; color:var(--text-secondary); margin-bottom:8px;">
+          Đánh giá mức độ ghi nhớ theo đường cong quên lãng Ebbinghaus để thuật toán SM-2 lập lịch ôn tập:
+        </div>
+        <div style="display:grid; grid-template-columns:repeat(5, 1fr); gap:6px; margin-bottom:8px;">
+          <button class="sm2-rate-btn" data-score="1" style="background:rgba(239,68,68,0.2); border:1px solid #EF4444; color:#FCA5A5; padding:8px 2px; border-radius:6px; font-size:11px; font-weight:600; cursor:pointer;">1: Quên</button>
+          <button class="sm2-rate-btn" data-score="2" style="background:rgba(249,115,22,0.2); border:1px solid #F97316; color:#FDBA74; padding:8px 2px; border-radius:6px; font-size:11px; font-weight:600; cursor:pointer;">2: Sai</button>
+          <button class="sm2-rate-btn" data-score="3" style="background:rgba(234,179,8,0.2); border:1px solid #EAB308; color:#FDE047; padding:8px 2px; border-radius:6px; font-size:11px; font-weight:600; cursor:pointer;">3: Khó</button>
+          <button class="sm2-rate-btn" data-score="4" style="background:rgba(34,197,94,0.2); border:1px solid #22C55E; color:#86EFAC; padding:8px 2px; border-radius:6px; font-size:11px; font-weight:600; cursor:pointer;">4: Nhớ</button>
+          <button class="sm2-rate-btn" data-score="5" style="background:rgba(59,130,246,0.2); border:1px solid #3B82F6; color:#93C5FD; padding:8px 2px; border-radius:6px; font-size:11px; font-weight:600; cursor:pointer;">5: Dễ</button>
+        </div>
+        <div id="sheet-sm2-status" style="font-size:12px; color:#38BDF8; font-weight:500;"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================================================
+   * iOS SAFARI "ADD TO HOME SCREEN" INSTALL BANNER
+   * =================================================== -->
+  <div class="ios-install-banner hidden" id="ios-install-banner">
+    <div class="banner-icon">📲</div>
+    <div class="banner-content">
+      <h5>Cài đặt trên iPhone của bạn</h5>
+      <p>Bấm nút <strong>Chia sẻ (Share ⎋)</strong> trên Safari rồi chọn <strong>"Thêm vào Màn hình chính"</strong> để dùng như app App Store thật!</p>
+    </div>
+    <button class="banner-close-btn" id="btn-close-banner">✕</button>
+  </div>
+
+  <!-- ===================================================
+   * BOTTOM TAB BAR NAVIGATION (iOS Style)
+   * =================================================== -->
+  <nav class="bottom-tab-bar" id="bottom-tab-bar">
+    <a href="#" class="tab-nav-item active" data-tab="tab-camera">
+      <span class="tab-nav-icon">📷</span>
+      <span>AR Lens</span>
+    </a>
+    <a href="#" class="tab-nav-item" data-tab="tab-it-hub">
+      <span class="tab-nav-icon">💻</span>
+      <span>IT English</span>
+    </a>
+    <a href="#" class="tab-nav-item" data-tab="tab-knowledge">
+      <span class="tab-nav-icon">📚</span>
+      <span>Từ Điển</span>
+    </a>
+    <a href="#" class="tab-nav-item" data-tab="tab-settings">
+      <span class="tab-nav-icon">⚙️</span>
+      <span>Cài Đặt</span>
+    </a>
+  </nav>
+
+  <!-- Application Main Controller -->
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>
