@@ -9,7 +9,7 @@ import { StorageManager } from './storage.js';
 import { SM2Engine } from './spaced_repetition.js';
 import { QuestEngine } from './quest_engine.js';
 import { VISUAL_VOCABULARY_LIST, findVisualWord } from '../data/visual_vocab_db.js';
-import { CODE_SNIPPETS, TECH_ARTICLES, INTERVIEW_QUESTIONS } from '../data/it_english_db.js';
+import { CODE_SNIPPETS, TECH_ARTICLES, INTERVIEW_QUESTIONS, IELTS_IT_ROADMAP } from '../data/it_english_db.js';
 
 /**
  * High-performance mobile touch helper for iOS Safari & Android
@@ -46,8 +46,11 @@ class AppController {
     this.currentSnippetIndex = 0;
     this.currentArticleIndex = 0;
     this.currentQuestionIndex = 0;
+    this.currentRoadmapStageIndex = 0;
+    this.currentActiveVocab = null;
+    this.shadowingTargetMode = 'word';
     this.activeTab = 'tab-camera';
-    this.activeItSubtab = 'subtab-code';
+    this.activeItSubtab = 'subtab-roadmap';
 
     this.initElements();
     this.initNavigation();
@@ -56,6 +59,7 @@ class AppController {
     this.initKnowledgeHub();
     this.initSettings();
     this.initBottomSheet();
+    this.initShadowingPronunciationTutor();
     this.initInstallBanner();
     this.updateStatsUI();
   }
@@ -241,6 +245,9 @@ class AppController {
       });
     });
 
+    this.renderRoadmap();
+    this.initRoadmapActions();
+
     this.renderCodeSnippet();
     this.initCodeExplanationActions();
 
@@ -251,6 +258,99 @@ class AppController {
     this.initInterviewActions();
 
     this.initPracticeTools();
+  }
+
+  /* --- IELTS 8.0 - 9.0 & IT Mastery Roadmap --- */
+  renderRoadmap() {
+    const stage = IELTS_IT_ROADMAP[this.currentRoadmapStageIndex];
+    const container = document.getElementById('roadmap-stage-content');
+    if (!stage || !container) return;
+
+    // Update active button state
+    document.querySelectorAll('.roadmap-stage-btn').forEach((btn, idx) => {
+      if (idx === this.currentRoadmapStageIndex) {
+        btn.classList.add('active');
+        btn.style.borderColor = stage.color;
+        btn.style.background = 'rgba(56, 189, 248, 0.2)';
+        btn.style.color = '#FFFFFF';
+      } else {
+        btn.classList.remove('active');
+        btn.style.borderColor = 'rgba(255, 255, 255, 0.15)';
+        btn.style.background = 'transparent';
+        btn.style.color = '#94A3B8';
+      }
+    });
+
+    let modulesHtml = '';
+    stage.modules.forEach((mod, mIdx) => {
+      const skillsHtml = mod.keySkills.map(s => `
+        <span style="background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.12); padding:3px 8px; border-radius:12px; font-size:11px; color:#E2E8F0; display:inline-block; margin:2px 2px;">
+          ✓ ${s}
+        </span>
+      `).join('');
+
+      modulesHtml += `
+        <div class="settings-card" style="margin-top:12px; border-color:rgba(255,255,255,0.1); background:rgba(15,23,42,0.85); position:relative;">
+          <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+            <div>
+              <span class="hud-badge" style="background:rgba(56,189,248,0.15); color:${stage.color}; font-size:10px; font-weight:700;">Học phần ${mIdx + 1}</span>
+              <h4 style="font-size:15px; font-weight:700; color:#FFFFFF; margin-top:4px;">${mod.title}</h4>
+            </div>
+            <button class="header-btn mod-listen-btn" data-text="${mod.samplePractice.replace(/"/g, '&quot;')}" style="padding:4px 8px;" title="Nghe câu mẫu">🔊</button>
+          </div>
+          <p style="font-size:12px; color:#94A3B8; margin-top:6px; line-height:1.4;">${mod.desc}</p>
+          
+          <div style="margin-top:8px;">
+            <div style="font-size:11px; font-weight:700; color:${stage.color}; margin-bottom:4px;">🔑 Kỹ Năng & Từ Khóa Cốt Lõi:</div>
+            <div>${skillsHtml}</div>
+          </div>
+
+          <div style="margin-top:10px; background:rgba(0,0,0,0.3); border-left:3px solid ${stage.color}; padding:8px 10px; border-radius:0 8px 8px 0;">
+            <div style="font-size:10px; color:#94A3B8; font-weight:700;">📖 Câu Giao Tiếp / Kỹ Thuật Thực Tế:</div>
+            <div style="font-size:12px; color:#FFFFFF; font-style:italic; margin-top:2px;">"${mod.samplePractice}"</div>
+          </div>
+
+          <div style="margin-top:8px; font-size:11px; color:#38BDF8; display:flex; align-items:center; gap:6px;">
+            <span>💡</span> <span>${mod.actionTip}</span>
+          </div>
+        </div>
+      `;
+    });
+
+    container.innerHTML = `
+      <div class="settings-card" style="border-color:${stage.color}; background:rgba(15,23,42,0.95); margin-bottom:12px;">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <h3 style="font-size:16px; font-weight:800; color:${stage.color};">${stage.icon} ${stage.stageTitle}</h3>
+          <span style="background:rgba(56,189,248,0.2); border:1px solid ${stage.color}; color:#FFF; font-size:11px; font-weight:800; padding:2px 8px; border-radius:12px;">
+            Mục tiêu: ${stage.ieltsTarget} (${stage.cefr})
+          </span>
+        </div>
+        <div style="font-size:12px; color:#E2E8F0; margin-top:6px;">
+          <strong>🎯 Đối tượng:</strong> ${stage.targetAudience}
+        </div>
+        <p style="font-size:12px; color:#94A3B8; margin-top:6px; line-height:1.5;">${stage.summary}</p>
+      </div>
+      <div>${modulesHtml}</div>
+    `;
+
+    // Audio listen buttons in modules
+    container.querySelectorAll('.mod-listen-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const text = btn.dataset.text;
+        if (text) this.speech.speak(text);
+      });
+    });
+  }
+
+  initRoadmapActions() {
+    const stageBtns = document.querySelectorAll('.roadmap-stage-btn');
+    stageBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const stageIdx = parseInt(btn.dataset.stage);
+        this.currentRoadmapStageIndex = stageIdx;
+        this.renderRoadmap();
+      });
+    });
   }
 
   /* --- Code-to-English Lab --- */
@@ -600,8 +700,125 @@ class AppController {
     });
   }
 
+  initShadowingPronunciationTutor() {
+    const btnWord = document.getElementById('btn-practice-word');
+    const btnSent = document.getElementById('btn-practice-sentence');
+    const btnMic = document.getElementById('btn-shadowing-mic');
+    const btnListen = document.getElementById('btn-shadowing-listen');
+    const targetTextEl = document.getElementById('shadowing-target-text');
+    const targetIpaEl = document.getElementById('shadowing-target-ipa');
+    const targetBadgeEl = document.getElementById('shadowing-target-badge');
+    const micStatusEl = document.getElementById('shadowing-mic-status');
+    const resultBox = document.getElementById('shadowing-result-box');
+    const bandBadge = document.getElementById('shadowing-band-badge');
+    const feedbackViEl = document.getElementById('shadowing-feedback-vi');
+    const spokenTextEl = document.getElementById('shadowing-spoken-text');
+    const breakdownEl = document.getElementById('shadowing-word-breakdown');
+
+    const updateTargetUI = () => {
+      if (!this.currentActiveVocab) return;
+      if (this.shadowingTargetMode === 'word') {
+        btnWord?.classList.add('active');
+        if (btnWord) { btnWord.style.background = '#38BDF8'; btnWord.style.color = '#0F172A'; }
+        btnSent?.classList.remove('active');
+        if (btnSent) { btnSent.style.background = 'rgba(255,255,255,0.08)'; btnSent.style.color = '#94A3B8'; }
+        if (targetBadgeEl) targetBadgeEl.textContent = 'Từ Vựng (Target Word)';
+        if (targetTextEl) targetTextEl.textContent = this.currentActiveVocab.wordEn;
+        if (targetIpaEl) targetIpaEl.textContent = `${this.currentActiveVocab.ipa} • [Trọng âm: ${this.currentActiveVocab.syllableStress}]`;
+      } else {
+        btnSent?.classList.add('active');
+        if (btnSent) { btnSent.style.background = '#38BDF8'; btnSent.style.color = '#0F172A'; }
+        btnWord?.classList.remove('active');
+        if (btnWord) { btnWord.style.background = 'rgba(255,255,255,0.08)'; btnWord.style.color = '#94A3B8'; }
+        if (targetBadgeEl) targetBadgeEl.textContent = 'Cả Câu C1/C2 (Advanced Sentence)';
+        const fullSent = this.currentActiveVocab.exampleSentenceEn || this.currentActiveVocab.c1c2ExpressionEn || '';
+        if (targetTextEl) targetTextEl.textContent = fullSent;
+        if (targetIpaEl) targetIpaEl.textContent = '📖 Đạt chuẩn ngữ điệu & trọng âm câu IELTS Band 8.0+';
+      }
+      if (resultBox) resultBox.style.display = 'none';
+      if (micStatusEl) micStatusEl.textContent = 'Bấm micro rồi phát âm to, rõ ràng vào mic';
+    };
+
+    btnWord?.addEventListener('click', () => {
+      this.shadowingTargetMode = 'word';
+      updateTargetUI();
+    });
+
+    btnSent?.addEventListener('click', () => {
+      this.shadowingTargetMode = 'sentence';
+      updateTargetUI();
+    });
+
+    btnListen?.addEventListener('click', () => {
+      const textToSpeak = targetTextEl?.textContent;
+      if (textToSpeak) this.speech.speak(textToSpeak);
+    });
+
+    btnMic?.addEventListener('click', () => {
+      if (this.speech.isListening) {
+        this.speech.stopListening();
+        btnMic.classList.remove('recording');
+        if (micStatusEl) micStatusEl.textContent = 'Đã dừng ghi âm';
+        return;
+      }
+
+      const targetText = targetTextEl?.textContent;
+      if (!targetText) return;
+
+      this.speech.startListening({
+        onStart: () => {
+          btnMic.classList.add('recording');
+          if (micStatusEl) micStatusEl.textContent = '🔴 Đang lắng nghe giọng phát âm của bạn...';
+        },
+        onResult: (spokenText, isFinal) => {
+          if (spokenTextEl) spokenTextEl.textContent = `🗣️ Bạn đã phát âm: "${spokenText}"`;
+          if (isFinal || spokenText.length > 2) {
+            const evalResult = this.speech.evaluatePronunciation(targetText, spokenText, {
+              syllableStress: this.currentActiveVocab?.syllableStress
+            });
+
+            if (evalResult && resultBox) {
+              resultBox.style.display = 'block';
+              resultBox.style.borderColor = evalResult.color;
+              if (bandBadge) {
+                bandBadge.textContent = `${evalResult.band} (${evalResult.accuracy}%)`;
+                bandBadge.style.color = evalResult.color;
+                bandBadge.style.background = `rgba(${evalResult.accuracy >= 80 ? '16, 185, 129' : '234, 179, 8'}, 0.2)`;
+              }
+              if (feedbackViEl) {
+                let fb = evalResult.feedbackVi;
+                if (evalResult.syllableTip) fb += ` • ${evalResult.syllableTip}`;
+                feedbackViEl.textContent = fb;
+              }
+              if (breakdownEl && evalResult.wordBreakdown) {
+                breakdownEl.innerHTML = evalResult.wordBreakdown.map(wb => `
+                  <span style="font-size:11px; padding:2px 6px; border-radius:6px; font-weight:600; background:${wb.status === 'perfect' ? 'rgba(16,185,129,0.25)' : (wb.status === 'close' ? 'rgba(234,179,8,0.25)' : 'rgba(239,68,68,0.25)')}; color:${wb.status === 'perfect' ? '#10B981' : (wb.status === 'close' ? '#FBBF24' : '#F87171')};">
+                    ${wb.word} (${wb.matchRate}%)
+                  </span>
+                `).join('');
+              }
+            }
+          }
+        },
+        onError: (err) => {
+          btnMic.classList.remove('recording');
+          if (micStatusEl) micStatusEl.textContent = '⚠️ ' + err;
+        },
+        onEnd: () => {
+          btnMic.classList.remove('recording');
+          if (micStatusEl) micStatusEl.textContent = 'Hoàn thành ghi âm. Kiểm tra kết quả chấm điểm bên dưới!';
+        }
+      });
+    });
+
+    this._updateShadowingTargetUI = updateTargetUI;
+  }
+
   openDeepKnowledgeSheet(vocab) {
     if (!vocab) return;
+    this.currentActiveVocab = vocab;
+    this.shadowingTargetMode = 'word';
+    if (this._updateShadowingTargetUI) this._updateShadowingTargetUI();
 
     // Display captured real-world thumbnail if available (Ý tưởng 18)
     const thumbWrapper = document.getElementById('sheet-thumbnail-wrapper');

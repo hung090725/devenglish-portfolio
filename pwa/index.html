@@ -107,14 +107,55 @@
     <div class="it-hub-container">
       <!-- Segmented Subtabs -->
       <div class="segmented-control">
-        <button class="segment-btn active" data-subtab="subtab-code">💻 Code Lab</button>
+        <button class="segment-btn active" data-subtab="subtab-roadmap">🗺️ Lộ Trình 0 ➔ IELTS 9.0</button>
+        <button class="segment-btn" data-subtab="subtab-code">💻 Code Lab</button>
         <button class="segment-btn" data-subtab="subtab-doc">📄 Tech Docs</button>
         <button class="segment-btn" data-subtab="subtab-interview">🎯 Phỏng Vấn</button>
         <button class="segment-btn" data-subtab="subtab-practice">🛠️ Thực Chiến</button>
       </div>
 
+      <!-- 2.0 Comprehensive Zero-to-Hero IELTS 8.0 - 9.0 & IT Mastery Roadmap -->
+      <section id="subtab-roadmap" class="it-subtab-pane active">
+        <div class="settings-card" style="border-color: rgba(56, 189, 248, 0.4); background: linear-gradient(135deg, rgba(15,23,42,0.9), rgba(30,41,59,0.8));">
+          <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+            <div>
+              <span class="hud-badge" style="background:rgba(56,189,248,0.2); color:#38BDF8; font-weight:700;">Zero to Hero Mastery</span>
+              <h2 style="font-size:18px; font-weight:800; color:#FFFFFF; margin-top:6px;">Lộ Trình Từ 0 Lên IELTS 8.0 - 9.0 & Kỹ Sư Toàn Cầu</h2>
+            </div>
+            <span style="font-size:24px;">🎓</span>
+          </div>
+          <p style="font-size:12px; color:var(--text-secondary); line-height:1.5; margin-top:6px;">
+            Thiết kế chuyên biệt cho người học từ con số 0 đến bậc thầy tiếng Anh kỹ thuật và phỏng vấn các tập đoàn công nghệ toàn cầu (Silicon Valley, Châu Âu, Singapore).
+          </p>
+
+          <!-- Stage Selection Tabs -->
+          <div style="display:grid; grid-template-columns:repeat(5, 1fr); gap:4px; margin-top:12px;" id="roadmap-stage-buttons">
+            <button class="roadmap-stage-btn active" data-stage="0" style="padding:8px 4px; border-radius:8px; border:1px solid #38BDF8; background:rgba(56,189,248,0.2); color:#38BDF8; font-size:11px; font-weight:700; cursor:pointer; text-align:center;">
+              <div>🌱</div>Chặng 1
+            </button>
+            <button class="roadmap-stage-btn" data-stage="1" style="padding:8px 4px; border-radius:8px; border:1px solid rgba(255,255,255,0.15); background:transparent; color:#94A3B8; font-size:11px; font-weight:600; cursor:pointer; text-align:center;">
+              <div>🚀</div>Chặng 2
+            </button>
+            <button class="roadmap-stage-btn" data-stage="2" style="padding:8px 4px; border-radius:8px; border:1px solid rgba(255,255,255,0.15); background:transparent; color:#94A3B8; font-size:11px; font-weight:600; cursor:pointer; text-align:center;">
+              <div>⚡</div>Chặng 3
+            </button>
+            <button class="roadmap-stage-btn" data-stage="3" style="padding:8px 4px; border-radius:8px; border:1px solid rgba(255,255,255,0.15); background:transparent; color:#94A3B8; font-size:11px; font-weight:600; cursor:pointer; text-align:center;">
+              <div>💎</div>Chặng 4
+            </button>
+            <button class="roadmap-stage-btn" data-stage="4" style="padding:8px 4px; border-radius:8px; border:1px solid rgba(255,255,255,0.15); background:transparent; color:#94A3B8; font-size:11px; font-weight:600; cursor:pointer; text-align:center;">
+              <div>👑</div>Chặng 5
+            </button>
+          </div>
+        </div>
+
+        <!-- Dynamic Stage Details Container -->
+        <div id="roadmap-stage-content" style="margin-top:14px;">
+          <!-- Injected via JavaScript -->
+        </div>
+      </section>
+
       <!-- 2.1 Code-to-English AI Lab -->
-      <section id="subtab-code" class="it-subtab-pane active">
+      <section id="subtab-code" class="it-subtab-pane">
         <div class="code-card">
           <div class="code-header">
             <div>
@@ -445,6 +486,41 @@
     <div id="sheet-thumbnail-wrapper" style="display:none; margin: 10px 0; border-radius: 12px; overflow: hidden; border: 1px solid rgba(56,189,248,0.4); max-height: 160px; background: rgba(0,0,0,0.4); text-align: center; position: relative;">
       <img id="sheet-thumbnail-img" style="width: 100%; height: 160px; object-fit: cover; display: block;" src="" alt="Thumbnail" />
       <span style="position: absolute; bottom: 6px; right: 8px; background: rgba(15,23,42,0.85); color: #38BDF8; font-size: 10px; font-weight: 600; padding: 2px 6px; border-radius: 4px; border: 1px solid rgba(56,189,248,0.3);">📷 Ảnh Thật Từ Camera</span>
+    </div>
+
+    <!-- AI Shadowing & Real-Time IELTS Pronunciation Scoring -->
+    <div class="sheet-section" id="sheet-shadowing-section" style="background: rgba(56, 189, 248, 0.06); border: 1px solid rgba(56, 189, 248, 0.3); border-radius: 12px; padding: 12px; margin-top: 10px;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+        <span class="sheet-section-title" style="margin-bottom: 0; color: #38BDF8;">🎙️ Luyện Phát Âm (Shadowing AI & Chấm Điểm IELTS)</span>
+        <span id="shadowing-target-badge" style="font-size: 10px; background: rgba(56, 189, 248, 0.2); color: #38BDF8; padding: 2px 8px; border-radius: 10px; font-weight: 700;">Target Word</span>
+      </div>
+      
+      <div style="display: flex; gap: 8px; margin-bottom: 10px;">
+        <button id="btn-practice-word" class="cefr-pill-btn active" style="flex: 1; padding: 6px; font-size: 11px; font-weight: 700; border-radius: 8px; cursor: pointer; background: #38BDF8; color: #0F172A; border: none;">Luyện Từ Vựng</button>
+        <button id="btn-practice-sentence" class="cefr-pill-btn" style="flex: 1; padding: 6px; font-size: 11px; font-weight: 600; border-radius: 8px; cursor: pointer; background: rgba(255,255,255,0.08); color: #94A3B8; border: none;">Luyện Cả Câu (C1/C2)</button>
+      </div>
+
+      <div id="shadowing-target-box" style="background: rgba(15, 23, 42, 0.8); border: 1px dashed rgba(56, 189, 248, 0.4); border-radius: 8px; padding: 10px; margin-bottom: 10px; text-align: center;">
+        <div id="shadowing-target-text" style="font-size: 16px; font-weight: 700; color: #FFFFFF;">Laptop</div>
+        <div id="shadowing-target-ipa" style="font-size: 12px; color: #38BDF8; font-family: monospace; margin-top: 3px;">/ˈlæp.tɒp/ • Trọng âm: LAP-top</div>
+      </div>
+
+      <div style="display: flex; gap: 8px; align-items: center; justify-content: center;">
+        <button id="btn-shadowing-mic" class="mic-btn" style="width: 52px; height: 52px; font-size: 24px; border-radius: 50%; box-shadow: 0 0 16px rgba(56, 189, 248, 0.4);" title="Bấm để phát âm">🎙️</button>
+        <button id="btn-shadowing-listen" class="header-btn" style="padding: 10px 14px; font-size: 13px; font-weight: 600;">🔊 Nghe Mẫu</button>
+      </div>
+      <div id="shadowing-mic-status" style="text-align: center; font-size: 11px; color: #94A3B8; margin-top: 6px;">Bấm micro rồi phát âm to, rõ ràng vào mic</div>
+
+      <!-- Real-Time Evaluation Result Card -->
+      <div id="shadowing-result-box" style="display: none; margin-top: 10px; background: rgba(15, 23, 42, 0.95); border: 1px solid rgba(16, 185, 129, 0.4); border-radius: 10px; padding: 10px;">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <span style="font-size: 12px; color: #94A3B8;">Kết quả chấm điểm IELTS:</span>
+          <span id="shadowing-band-badge" style="font-size: 13px; font-weight: 800; color: #10B981; background: rgba(16, 185, 129, 0.2); padding: 2px 8px; border-radius: 6px;">Band 8.5</span>
+        </div>
+        <div id="shadowing-feedback-vi" style="font-size: 12px; color: #E2E8F0; margin-top: 6px; line-height: 1.4;"></div>
+        <div id="shadowing-spoken-text" style="font-size: 11px; color: #38BDF8; margin-top: 4px; font-style: italic;"></div>
+        <div id="shadowing-word-breakdown" style="display: flex; flex-wrap: wrap; gap: 4px; margin-top: 8px;"></div>
+      </div>
     </div>
 
     <div class="sheet-section">

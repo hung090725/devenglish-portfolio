@@ -274,3 +274,187 @@ export const INTERVIEW_QUESTIONS = [
     "tipsVi": "💡 Mẹo phỏng vấn: Thể hiện thái độ cầu thị (Growth Mindset), kỹ năng giao tiếp lịch thiệp và tôn trọng tiêu chuẩn chất lượng sản phẩm chung của đội ngũ."
   }
 ];
+
+
+export const IELTS_IT_ROADMAP = [
+  {
+    stageId: "stage_1_a0_a2",
+    stageTitle: "Chặng 1: Nền Tảng Bứt Phá (A0 ➔ A2)",
+    targetAudience: "Người mất gốc hoàn toàn, bắt đầu từ con số 0",
+    cefr: "A0 - A2",
+    ieltsTarget: "IELTS 3.0 - 4.5",
+    color: "#38BDF8",
+    icon: "🌱",
+    summary: "Xóa mù tiếng Anh, nắm chắc 44 âm IPA, 100 vật thể công nghệ quanh bạn và 50 câu lệnh lập trình căn bản.",
+    modules: [
+      {
+        id: "m1_1_ipa",
+        title: "Bảng Phiên Âm Quốc Tế IPA & Trọng Âm Tiếng Anh Công Nghệ",
+        desc: "Luyện phát âm chuẩn 44 âm tiết IPA, phân biệt nguyên âm ngắn/dài (/iː/ vs /ɪ/ trong 'chip' vs 'cheap'), phụ âm rung và bật hơi (/p/, /b/, /t/, /d/).",
+        keySkills: ["Phát âm chuẩn IPA 44 âm", "Quy luật trọng âm từ 2 & 3 âm tiết", "Âm đuôi bắt buộc /s/, /z/, /t/, /d/"],
+        samplePractice: "Laptop /ˈlæp.tɒp/ (nhấn âm 1) • Server /ˈsɜː.vər/ (nhấn âm 1) • Developer /dɪˈvel.ə.pər/ (nhấn âm 2)",
+        actionTip: "Dùng camera AR soi vào laptop, bàn phím, chuột để nghe phát âm IPA và lặp lại theo phương pháp Shadowing."
+      },
+      {
+        id: "m1_2_hardware_vocab",
+        title: "Từ Vựng Phần Cứng & Thiết Bị Làm Việc Thực Tế",
+        desc: "Nhận biết tên gọi và công dụng của mọi linh kiện và thiết bị xung quanh lập trình viên.",
+        keySkills: ["Motherboard", "Central Processing Unit (CPU)", "Graphics Processing Unit (GPU)", "Solid-State Drive (SSD)", "Ethernet Cable"],
+        samplePractice: "An SSD drastically reduces operating system boot latency compared to a mechanical hard drive.",
+        actionTip: "Mở tính năng AR Lens, quét vào các thiết bị trên bàn làm việc để tích lũy từ vựng trực quan."
+      },
+      {
+        id: "m1_3_programming_logic",
+        title: "Từ Vựng Logic Lập Trình Cơ Bản",
+        desc: "Cách đọc các câu lệnh điều kiện, vòng lặp, biến số và kiểu dữ liệu bằng tiếng Anh chuẩn xác.",
+        keySkills: ["Declare a variable", "Initialize an integer", "Loop through an array", "Conditional branch (if-else)", "Return a value"],
+        samplePractice: "This loop iterates over the elements and breaks immediately when a match is encountered.",
+        actionTip: "Vào mục Code Lab, chọn bài tập Junior và bấm nghe máy giải thích từng dòng code."
+      }
+    ]
+  },
+  {
+    stageId: "stage_2_b1_b2",
+    stageTitle: "Chặng 2: Giao Tiếp Đội Ngũ Kỹ Thuật (B1 ➔ B2)",
+    targetAudience: "Lập trình viên Fresher / Junior bắt đầu làm việc trong môi trường Agile/Scrum",
+    cefr: "B1 - B2",
+    ieltsTarget: "IELTS 5.0 - 6.5",
+    color: "#10B981",
+    icon: "🚀",
+    summary: "Báo cáo Daily Standup lưu loát, viết Git Commit chuẩn Conventional, đọc hiểu tài liệu API RESTful không cần dịch.",
+    modules: [
+      {
+        id: "m2_1_standup",
+        title: "Kỹ Năng Nói Trong Daily Scrum & Sprint Meeting",
+        desc: "Cấu trúc 3 câu vàng trong báo cáo hàng ngày: Hôm qua làm gì ➔ Hôm nay làm gì ➔ Có khó khăn (blocker) gì không.",
+        keySkills: ["Yesterday I implemented...", "Today I am focusing on...", "I am blocked by missing API endpoints", "Could we sync up after this standup?"],
+        samplePractice: "Yesterday I completed the user authentication flow. Today I am drafting unit tests for payment webhook processing. No blockers currently.",
+        actionTip: "Mở tab Thực Chiến ➔ Daily Standup Generator để luyện tập nói báo cáo mỗi buổi sáng."
+      },
+      {
+        id: "m2_2_git_commits",
+        title: "Viết Git Commit & Pull Request Chuẩn Quốc Tế",
+        desc: "Quy chuẩn Conventional Commits (feat, fix, refactor, chore, docs) giúp đồng nghiệp nước ngoài hiểu ngay thay đổi của bạn.",
+        keySkills: ["feat(auth): add JWT bearer verification", "fix(db): resolve concurrent connection timeout", "refactor(ui): streamline modal rendering lifecycle"],
+        samplePractice: "When writing commit messages, always use imperative mood: 'Add feature' not 'Added feature'.",
+        actionTip: "Luyện viết PR description trong tab Thực Chiến với bộ kiểm tra ngữ pháp tự động."
+      },
+      {
+        id: "m2_3_rest_api",
+        title: "Đọc & Thảo Luận Tài Liệu API RESTful",
+        desc: "Sử dụng chính xác các thuật ngữ về giao thức HTTP, Headers, Payload, Status Code và Query Parameters.",
+        keySkills: ["HTTP Methods (GET, POST, PUT, PATCH, DELETE)", "Status Codes (200 OK, 201 Created, 401 Unauthorized, 404 Not Found, 500 Server Error)", "Idempotency"],
+        samplePractice: "The endpoint returns a 401 Unauthorized error when the authorization bearer header is omitted.",
+        actionTip: "Đọc tài liệu React useEffect và Docker trong tab Tech Docs để nâng cao tốc độ đọc hiểu kỹ thuật."
+      }
+    ]
+  },
+  {
+    stageId: "stage_3_b2_c1",
+    stageTitle: "Chặng 3: Phản Biện Kỹ Thuật & Tối Ưu Hệ Thống (B2 ➔ C1)",
+    targetAudience: "Kỹ sư Mid/Senior muốn làm việc cho công ty đa quốc gia, nhận lương nghìn đô",
+    cefr: "B2 - C1",
+    ieltsTarget: "IELTS 7.0 - 7.5",
+    color: "#F59E0B",
+    icon: "⚡",
+    summary: "Phản biện Code Review lịch thiệp và thuyết phục, phân tích độ phức tạp Big-O, xử lý sự cố Production Incident và viết RCA.",
+    modules: [
+      {
+        id: "m3_1_code_review",
+        title: "Nghệ Thuật Phản Biện Code Review (Constructive PR Review)",
+        desc: "Cách để lại bình luận mang tính xây dựng, tránh dùng từ ngữ áp đặt và hướng tới giải pháp tối ưu chung.",
+        keySkills: ["Have we considered edge cases where...?", "To mitigate race conditions, what if we wrap this in...?", "Nit: Minor typo in variable naming", "LGTM (Looks Good To Me) with a minor suggestion"],
+        samplePractice: "Could we potentially extract this utility logic into a dedicated helper function to foster code reusability across modules?",
+        actionTip: "Tham khảo tab Phỏng Vấn Vòng 4 để rèn luyện tư duy giao tiếp và phản biện chuyên nghiệp."
+      },
+      {
+        id: "m3_2_big_o",
+        title: "Giải Thích Thuật Toán & Độ Phức Tạp Big-O",
+        desc: "Trình bày đánh giá Time Complexity và Space Complexity một cách tự tin, chuẩn xác.",
+        keySkills: ["Constant time O(1)", "Logarithmic time O(log n)", "Linear time O(n)", "Quadratic time O(n²)", "Worst-case scenario vs Average-case scenario"],
+        samplePractice: "By replacing the nested lookup loops with an indexed hash map, we diminish the algorithmic complexity from quadratic O(n²) to linear O(n).",
+        actionTip: "Luyện giải thích các đoạn mã trong Code Lab bằng giọng nói tiếng Anh có chấm điểm ngữ điệu."
+      },
+      {
+        id: "m3_3_incident_rca",
+        title: "Xử Lý Sự Cố Production & Báo Cáo Root Cause Analysis (RCA)",
+        desc: "Cách dùng tiếng Anh bình tĩnh trong phòng họp khẩn cấp (War Room) và viết báo cáo sự cố theo phương pháp 5 Whys.",
+        keySkills: ["Service outage", "Latency spike", "Rollback deployment", "Circuit breaker tripped", "Post-mortem documentation"],
+        samplePractice: "The cascading outage was triggered by an unindexed database query during peak traffic, precipitating thread pool exhaustion.",
+        actionTip: "Thực hành viết Bug Report và Incident Log trong tab Thực Chiến."
+      }
+    ]
+  },
+  {
+    stageId: "stage_4_c1_c2",
+    stageTitle: "Chặng 4: Thiết Kế Kiến Trúc & Chinh Phục IELTS 8.0 (C1 ➔ C2)",
+    targetAudience: "Tech Lead, Solution Architect, Kỹ sư chinh phục IELTS Band 8.0+",
+    cefr: "C1 - C2",
+    ieltsTarget: "IELTS 8.0 - 8.5",
+    color: "#8B5CF6",
+    icon: "💎",
+    summary: "Thuyết trình phỏng vấn System Design cấp cao, viết luận IELTS Writing Task 2 chuyên sâu công nghệ và phản biện IELTS Speaking Part 3 xuất sắc.",
+    modules: [
+      {
+        id: "m4_1_system_design",
+        title: "Phỏng Vấn Thiết Kế Hệ Thống Quy Mô Hàng Triệu Người Dùng",
+        desc: "Sử dụng các từ vựng học thuật cao cấp về độ tin cậy, thông lượng, tính sẵn sàng và tính phân tán.",
+        keySkills: ["Scalability vs Fault-tolerance", "CAP Theorem (Consistency, Availability, Partition Tolerance)", "Database Sharding & Replication", "Distributed Caching (Redis/Memcached)", "Message Brokers & Event-Driven Architecture"],
+        samplePractice: "To ensure high availability across geographic regions, we implement an active-active multi-region deployment complemented by distributed consensus protocols.",
+        actionTip: "Dùng các cụm từ vựng C1/C2 trong bách khoa toàn thư AR Lens khi mô tả các hệ sinh thái phần mềm."
+      },
+      {
+        id: "m4_2_ielts_writing_tech",
+        title: "IELTS Writing Task 2: Chuyên Đề Công Nghệ & Trí Tuệ Nhân Tạo",
+        desc: "Xây dựng luận điểm sắc bén về tác động của AI, tự động hóa việc làm, đạo đức dữ liệu và an ninh mạng.",
+        keySkills: ["Cohesive devices (Conversely, Notwithstanding, Precipitate, Inherent)", "Hedging (Tương đối hóa luận điểm: tends to suggest, potentially exacerbates)", "Complex sentence subordination"],
+        samplePractice: "While proponents argue that ubiquitous artificial intelligence streamlines operational overhead, critics contend that it poses unprecedented algorithmic accountability concerns.",
+        actionTip: "Ghi nhớ các câu thành ngữ và cấu trúc C1/C2 đi kèm trong mỗi từ vựng được nhận diện qua Camera."
+      },
+      {
+        id: "m4_3_ielts_speaking_p3",
+        title: "IELTS Speaking Part 3: Phản Biện Chuyên Sâu Cấu Trúc P-E-E-L",
+        desc: "Công thức trả lời đỉnh cao: Point (Luận điểm) ➔ Explanation (Giải thích cơ chế) ➔ Example (Ví dụ thực tế công nghệ) ➔ Link (Kết nối tổng thể).",
+        keySkills: ["From an empirical standpoint...", "This phenomenon is predominantly attributable to...", "A quintessential illustration of this is...", "Consequently, it is imperative that..."],
+        samplePractice: "From an architectural perspective, legacy monolithic frameworks inevitably yield to microservice paradigms when developer concurrency exceeds organizational tipping points.",
+        actionTip: "Bật nút micro trong Deep Sheet để AI chấm điểm ngữ âm theo thang điểm IELTS Pronunciation."
+      }
+    ]
+  },
+  {
+    stageId: "stage_5_c2_mastery",
+    stageTitle: "Chặng 5: Đỉnh Cao Lãnh Đạo & IELTS 9.0 (C2 Mastery)",
+    targetAudience: "Tech Executive, Principal Architect, VP of Engineering, chinh phục IELTS 9.0 tuyệt đối",
+    cefr: "C2 Mastery",
+    ieltsTarget: "IELTS 8.5 - 9.0",
+    color: "#EC4899",
+    icon: "👑",
+    summary: "Thuyết trình Keynote quốc tế với nghệ thuật tu từ, soạn thảo tiêu chuẩn RFC công nghệ và đàm phán đãi ngộ cấp cao Silicon Valley.",
+    modules: [
+      {
+        id: "m5_1_keynote",
+        title: "Nghệ Thuật Diễn Thuyết Công Nghệ (Tech Keynote & Public Speaking)",
+        desc: "Kỹ nghệ áp dụng các thủ pháp tu từ tiếng Anh: Điệp từ (Anaphora), Phản đề (Antithesis), Bộ ba nhịp điệu (Rule of Three).",
+        keySkills: ["Rhetorical devices for executive persuasion", "Dynamic pitch variation and vocal cadence", "Captivating tech storytelling"],
+        samplePractice: "We do not build software simply to digitize processes; we engineer architectures to democratize intelligence, empower communities, and redefine human potential.",
+        actionTip: "Nghe câu phát âm mẫu C1/C2 trong AR Lens và bắt chước ngữ điệu nhấn nhá từng âm tiết."
+      },
+      {
+        id: "m5_2_rfc_adr",
+        title: "Soạn Thảo Đề Xuất Kỹ Thuật RFC & Architecture Decision Record (ADR)",
+        desc: "Ngôn ngữ văn bản mang tính chuẩn mực kỹ thuật cao nhất được áp dụng tại Google, Apple, Microsoft, Amazon.",
+        keySkills: ["Executive Summary", "Architectural Trade-offs & Consequences", "Deprecation Strategy", "Security & Compliance Audits"],
+        samplePractice: "This Architecture Decision Record articulates our strategic transition towards zero-trust network topology to neutralize perimeter vulnerabilities.",
+        actionTip: "Ứng dụng các thuật ngữ IT chuẩn hoá trong cơ sở dữ liệu DevEnglish để hoàn thiện bài viết."
+      },
+      {
+        id: "m5_3_compensation",
+        title: "Đàm Phán Lương Bổng Cấp Cao (Senior / Staff / Lead Compensation)",
+        desc: "Ngôn ngữ thương thuyết chuyên nghiệp về Total Compensation (Base Salary, Equity Grants, RSUs, Vesting Schedule, Cliff, Sign-on Bonus).",
+        keySkills: ["Total compensation benchmarking", "Stock option exercise window", "Accelerated vesting clauses", "Counter-offer negotiation etiquette"],
+        samplePractice: "Based on my proven track record in orchestrating cloud migrations and market comp benchmarks, I am targeting a total compensation package commensurate with a Staff-level scope.",
+        actionTip: "Luyện tập phỏng vấn trong mục Mock Interview để xây dựng phản xạ giao tiếp tự tin."
+      }
+    ]
+  }
+];
